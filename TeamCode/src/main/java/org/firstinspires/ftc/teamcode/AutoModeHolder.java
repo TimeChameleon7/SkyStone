@@ -1,60 +1,32 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import java.util.Arrays;
-
 public class AutoModeHolder {
     private static BotController startSequence(LinearOpMode opMode) {
+        BotController controller = new BotController(opMode);
         opMode.telemetry.addData("Status", "Initialized");
         opMode.telemetry.update();
         opMode.waitForStart();
         opMode.telemetry.addData("Status", "Started");
         opMode.telemetry.update();
-        return new BotController(opMode.hardwareMap);
+        return controller;
     }
 
     @Autonomous
     public static class Test extends LinearOpMode {
         @Override
         public void runOpMode() {
-            final BotController c = startSequence(this);
+            BotController c = startSequence(this);
 
-            Context context = hardwareMap.appContext;
-            SensorManager manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-            Sensor sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            if (sensor == null) {
-                updateStatus("Gyro is null");
-            }
-            waitForStart();
-            SensorEventListener listener = new SensorEventListener() {
-                @Override
-                public void onSensorChanged(SensorEvent event) {
-                    updateStatus(Arrays.toString(event.values));
-                }
-
-                @Override
-                public void onAccuracyChanged(Sensor sensor, int i) {}
-            };
-            manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
             c.speed = .3;
             c.right(1000);
             c.left(1000);
             c.forward(1000);
             c.reverse(1000);
-            manager.unregisterListener(listener);
-        }
 
-        private void updateStatus(Object o) {
-            telemetry.addData("Status", o);
-            telemetry.update();
-            sleep(1000);
+            c.unregister();
         }
     }
 
