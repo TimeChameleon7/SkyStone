@@ -30,12 +30,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 
 /**
@@ -77,9 +75,9 @@ public class Omni extends LinearOpMode {
         motorTwo  = hardwareMap.get(DcMotor.class, "two");
         motorThree  = hardwareMap.get(DcMotor.class, "three");
         motorFour  = hardwareMap.get(DcMotor.class, "four");
-        servoHand = hardwareMap.get(Servo.class, "servoOne");
+        servoHand = hardwareMap.get(Servo.class, "servoDump");
         servoArm = hardwareMap.get(Servo.class, "servoArm");
-        servoDump = hardwareMap.get(Servo.class, "servoDump");
+        servoDump = hardwareMap.get(Servo.class, "servoOne");
 
 
         // Most robots need the motor on one side to be reversed to drive forward
@@ -104,7 +102,7 @@ public class Omni extends LinearOpMode {
 
             // POV Mode uses left stick to go forward, and right stick to turn.
             // - This uses basic math to combine motions and is easier to drive straight.
-            double vertical = gamepad1.right_stick_y;
+            double vertical = -gamepad1.right_stick_y;
             double horizontal   =  gamepad1.right_stick_x;
             double turn = gamepad1.left_stick_x;
             double up = gamepad1.left_trigger;
@@ -141,10 +139,12 @@ public class Omni extends LinearOpMode {
             
 
            
-            if(gamepad2.x){
-                servoHand.setPosition(.8);
-            }else if(gamepad2.b){
-                servoHand.setPosition(.45);
+            if(gamepad2.right_trigger>0){
+                servoDump.setPosition(.8);
+            }else if(gamepad2.left_trigger>0){
+                servoDump.setPosition(.3);
+            }else{
+                servoDump.setPosition(.5);
             }
             
             if(gamepad2.dpad_up){
@@ -155,12 +155,12 @@ public class Omni extends LinearOpMode {
                 servoArm.setPosition(.5);
             }
             
-            if(gamepad2.left_bumper){
-                servoDump.setPosition(.3);
-            }else if(gamepad2.right_bumper){
-                servoDump.setPosition(.8);
+            if(gamepad2.right_bumper){
+                servoHand.setPosition(.3);
+            }else if(gamepad2.left_bumper){
+                servoHand.setPosition(.8);
             }else{
-                servoDump.setPosition(.5);
+                servoHand.setPosition(.5);
             }
             
 
