@@ -105,8 +105,6 @@ public class Omni extends LinearOpMode {
             double vertical = -gamepad1.right_stick_y;
             double horizontal   =  gamepad1.right_stick_x;
             double turn = gamepad1.left_stick_x;
-            double up = gamepad1.left_trigger;
-            double down = -gamepad1.right_trigger; 
             motorOne.setPower(vertical);
             motorTwo.setPower(horizontal);
             motorThree.setPower(vertical);
@@ -115,13 +113,6 @@ public class Omni extends LinearOpMode {
             if(turn!=0){
                 motorOne.setPower(turn);
                 motorThree.setPower(turn);
-            }
-            
-            if (gamepad1.dpad_down && power != 0) {
-                power -= .01;
-            }
-            if (gamepad1.dpad_up && power != 1) {
-                power += .01;
             }
 
             if(gamepad1.left_bumper){
@@ -136,9 +127,9 @@ public class Omni extends LinearOpMode {
                 motorThree.setPower(power);
                 motorFour.setPower(power);
             }
-            
 
-           
+
+
             if(gamepad2.right_trigger>0){
                 servoDump.setPosition(.8);
             }else if(gamepad2.left_trigger>0){
@@ -146,7 +137,7 @@ public class Omni extends LinearOpMode {
             }else{
                 servoDump.setPosition(.5);
             }
-            
+
             if(gamepad2.dpad_up){
                 servoArm.setPosition(6);
             }else if(gamepad2.dpad_down){
@@ -154,7 +145,7 @@ public class Omni extends LinearOpMode {
             }else{
                 servoArm.setPosition(.5);
             }
-            
+
             if(gamepad2.right_bumper){
                 servoHand.setPosition(.3);
             }else if(gamepad2.left_bumper){
@@ -162,10 +153,10 @@ public class Omni extends LinearOpMode {
             }else{
                 servoHand.setPosition(.5);
             }
-            
+
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Power: " + power);
+            telemetry.addData("Elapsed", runtime.seconds());
             telemetry.update();
         }
     }
