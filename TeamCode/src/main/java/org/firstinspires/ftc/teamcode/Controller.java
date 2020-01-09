@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 public class Controller {
 
     //todo four directions then moveRel that calls them
-    //todo rotation deaccelerate when close
+    //todo rotation decelerate when close
     //todo logging methods
     //todo possible addition of opModeIsActive checking during sleeps or during logging calls
 
@@ -30,6 +30,7 @@ public class Controller {
     private double power;
     private float rotateAccuracy;
     private boolean logging;
+    private boolean flipped;
 
     public Controller(LinearOpMode mode, boolean useSensors) {
         HardwareMap map = mode.hardwareMap;
@@ -110,6 +111,11 @@ public class Controller {
         return (T) map.get(name);
     }
 
+    public Controller flip() {
+        flipped = true;
+        return this;
+    }
+
     public double getPower() {
         return power;
     }
@@ -144,85 +150,136 @@ public class Controller {
         return this;
     }
 
-    public Controller sleep(long millis) {
+    public Controller sleep(double seconds) {
         try {
-            Thread.sleep(millis);
+            Thread.sleep((long) (seconds * 1000));
         } catch (Exception e) {
             Thread.currentThread().interrupt();
         }
         return this;
     }
 
-    private void setMotorsPower(double power) {
+    private void setMotorsPower(double power, DcMotor...motors) {
         for (DcMotor motor : motors) motor.setPower(power);
     }
 
-    public Controller armUp(long millis) {
+    public Controller armUp(double seconds) {
         arm.setPosition(0);
-        return sleepThenBrake(millis, arm);
+        return sleepThenBrake(seconds, arm);
     }
-    public Controller armDown(long millis) {
+    public Controller armDown(double seconds) {
         arm.setPosition(1);
-        return sleepThenBrake(millis, arm);
+        return sleepThenBrake(seconds, arm);
     }
-    public Controller holdArmDown(long millis) {
+    public Controller holdArmDown(double seconds) {
         arm.setPosition(1);
-        sleep(millis);
+        sleep(seconds);
         return this;
     }
     public Controller closeHand() {
         hand.setPosition(0);
-        return sleepThenBrake(1000, hand);
+        return sleepThenBrake(1, hand);
     }
     public Controller openHand() {
         hand.setPosition(1);
-        return sleepThenBrake(1000, hand);
+        return sleepThenBrake(1, hand);
     }
-    private Controller sleepThenBrake(long millis, Servo servo) {
-        sleep(millis);
+    private Controller sleepThenBrake(double seconds, Servo servo) {
+        sleep(seconds);
         servo.setPosition(.5);
         return this;
     }
 
     public BotController moveByTime() {
-        return new BotController() {
-            @Override
-            public BotController rotate(Direction direction, double seconds) {
-                switch (direction) {
-                    case LEFT:
-                        setMotorsPower(power);
-                        sleep((long) (seconds * 1000));
-                        setMotorsPower(0);
-                        break;
-                    case RIGHT:
-                        setMotorsPower(-power);
-                        sleep((long) (seconds * 1000));
-                        setMotorsPower(0);
-                    default:
-                        throw new IllegalArgumentException("Direction may only be LEFT or RIGHT for rotations.");
-                }
-                return this;
-            }
-
+        abstract class Core extends BotController {
             @Override
             public BotController move(Direction direction, double seconds) {
-                switch (direction) {
-                    case FORWARD:   move(seconds, motors[0], motors[2]); break;
-                    case REVERSE:   move(seconds, motors[2], motors[0]); break;
-                    case LEFT:      move(seconds, motors[3], motors[1]); break;
-                    case RIGHT:     move(seconds, motors[1], motors[3]); break;
-                }
+                DcMotor[] motors = getMotors(direction);
+                motors[0].setPower(power);
+                motors[1].setPower(-power);
+                sleep(seconds);
+                setMotorsPower(0, motors);
                 return this;
             }
 
-            private void move(double seconds, DcMotor normalMotor, DcMotor reversedMotor) {
-                normalMotor.setPower(power);
-                reversedMotor.setPower(-power);
-                sleep((long) (seconds * 1000));
-                normalMotor.setPower(0);
-                reversedMotor.setPower(0);
+            @Override
+            public BotController move(Direction direction1, double seconds1, Direction direction2, double seconds2) {
+                if (direction1 == direction2) throw new IllegalArgumentException("Directions may not be the same");
+                if (direction1.opposite() == direction2) throw new IllegalArgumentException("Directions may not be opposite of each other");
+
+                if (seconds1 > seconds2) {
+                    Direction tempDir = direction1;
+                    direction1 = direction2;
+                    direction2 = tempDir;
+                    double tempSec = seconds1;
+                    seconds1 = seconds2;
+                    seconds2 = tempSec;
+                }
+
+                DcMotor[] motors1 = getMotors(direction1);
+                DcMotor[] motors2 = getMotors(direction2);
+                setMotorsPower(power, motors1[0], motors2[0]);
+                setMotorsPower(-power, motors1[1], motors2[1]);
+                sleep(seconds1);
+                setMotorsPower(0, motors1);
+                sleep(seconds2 - seconds1);
+                setMotorsPower(0, motors2);
+                return this;
             }
-        };
+
+            abstract protected DcMotor[] getMotors(Direction direction);
+        }
+        if (flipped) {
+            return new Core() {
+                @Override
+                public BotController rotate(Direction direction, double seconds) {
+                    switch (direction) {
+                        case LEFT:  setMotorsPower(-power, motors); break;
+                        case RIGHT: setMotorsPower(power, motors);  break;
+                        default: throw new IllegalArgumentException("Direction may only be LEFT or RIGHT for rotations.");
+                    }
+                    sleep(seconds);
+                    setMotorsPower(0, motors);
+                    return this;
+                }
+
+                @Override
+                protected DcMotor[] getMotors(Direction direction) {
+                    switch (direction) {
+                        case FORWARD:   return new DcMotor[]{motors[0], motors[2]};
+                        case REVERSE:   return new DcMotor[]{motors[2], motors[0]};
+                        case LEFT:      return new DcMotor[]{motors[1], motors[3]};
+                        case RIGHT:     return new DcMotor[]{motors[3], motors[1]};
+                        default:        throw new IllegalArgumentException("Direction is null");
+                    }
+                }
+            };
+        } else {
+            return new Core() {
+                @Override
+                public BotController rotate(Direction direction, double seconds) {
+                    switch (direction) {
+                        case LEFT:  setMotorsPower(power, motors);  break;
+                        case RIGHT: setMotorsPower(-power, motors); break;
+                        default: throw new IllegalArgumentException("Direction may only be LEFT or RIGHT for rotations.");
+                    }
+                    sleep(seconds);
+                    setMotorsPower(0, motors);
+                    return this;
+                }
+
+                @Override
+                protected DcMotor[] getMotors(Direction direction) {
+                    switch (direction) {
+                        case FORWARD:   return new DcMotor[]{motors[0], motors[2]};
+                        case REVERSE:   return new DcMotor[]{motors[2], motors[0]};
+                        case LEFT:      return new DcMotor[]{motors[3], motors[1]};
+                        case RIGHT:     return new DcMotor[]{motors[1], motors[3]};
+                        default:        throw new IllegalArgumentException("Direction is null");
+                    }
+                }
+            };
+        }
     }
 
     abstract class BotController {
@@ -256,21 +313,21 @@ public class Controller {
             return this;
         }
 
-        public BotController sleep(long millis) {
-            Controller.this.sleep(millis);
+        public BotController sleep(double seconds) {
+            Controller.this.sleep(seconds);
             return this;
         }
 
-        public BotController armUp(long millis) {
-            Controller.this.armUp(millis);
+        public BotController armUp(double seconds) {
+            Controller.this.armUp(seconds);
             return this;
         }
-        public BotController armDown(long millis) {
-            Controller.this.armDown(millis);
+        public BotController armDown(double seconds) {
+            Controller.this.armDown(seconds);
             return this;
         }
-        public BotController holdArmDown(long millis) {
-            Controller.this.holdArmDown(millis);
+        public BotController holdArmDown(double seconds) {
+            Controller.this.holdArmDown(seconds);
             return this;
         }
         public BotController closeHand() {
@@ -285,12 +342,12 @@ public class Controller {
         /**
          * Rotates the bot using the number defined towards the direction defined.
          *
-         * @param x usage is determined by the implementation.
          * @param direction Direction to rotate the bot towards.
          *                  Implementations only need to operate with
          *                   Directions {@code LEFT} & {@code RIGHT},
          *                   and may handle {@code FORWARD} & {@code REVERSE}
          *                   as they wish.
+         * @param x usage is determined by the implementation.
          *
          * @return {@code this}.
          */
@@ -299,11 +356,25 @@ public class Controller {
         /**
          * Moves the bot using the number defined towards the direction defined.
          *
-         * @param x usage is determined by the implementation.
          * @param direction Direction to move the bot towards.
+         * @param x usage is determined by the implementation.
          *
          * @return {@code this}.
          */
         public abstract BotController move(Direction direction, double x);
+
+        /**
+         * Moves the bot using the first number defined towards the direction defined, and moves the
+         *  bot using the second number towards the second direction defined at the same time.
+         *
+         * @param direction1 First direction to move the bot towards.
+         * @param x usage is determined by the implementation.
+         * @param direction2 Second direction to move the bot towards.
+         * @param y usage is determined by the implementation.
+         * @return {@code this}.
+         */
+        public abstract BotController move(Direction direction1, double x, Direction direction2, double y);
     }
+
+
 }

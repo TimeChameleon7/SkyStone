@@ -14,13 +14,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.NavUtil;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
-//todo when all is replaced, and functionality is confirmed, will be renamed to controller and replace all others
 @SuppressWarnings("WeakerAccess")
 public class OverloadedController {
-    //todo four directions then moveRel that calls them
     //todo rotation deaccelerate when close
     //todo logging methods
-    //todo possible addition of opModeIsActive checking during sleeps or during logging calls
 
     private final DcMotor[] motors;
     final Servo arm;
