@@ -7,11 +7,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.NavUtil;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 @SuppressWarnings("WeakerAccess")
 public class Controller {
@@ -32,7 +27,7 @@ public class Controller {
     private boolean logging;
     private boolean flipped;
 
-    public Controller(LinearOpMode mode, boolean useSensors) {
+    public Controller(LinearOpMode mode, boolean useSensors, int averageOver) {
         HardwareMap map = mode.hardwareMap;
         motors = new DcMotor[4];
         motors[0] = get(map, "one");
@@ -54,50 +49,7 @@ public class Controller {
             parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
             parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
             parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
-            parameters.accelerationIntegrationAlgorithm = new BNO055IMU.AccelerationIntegrator() {
-                private Position position;
-                private Velocity velocity;
-                private Acceleration acceleration;
-
-                @Override
-                public void initialize(BNO055IMU.Parameters parameters, Position initialPosition, Velocity initialVelocity) {
-                    this.position = new Position(DistanceUnit.METER, 0, 0, 0, 0);
-                    this.velocity = new Velocity(DistanceUnit.METER, 0, 0, 0, 0);
-                    this.acceleration = null;
-                }
-
-                @Override
-                public Position getPosition() {
-                    return position;
-                }
-
-                @Override
-                public Velocity getVelocity() {
-                    return velocity;
-                }
-
-                @Override
-                public Acceleration getAcceleration() {
-                    return acceleration;
-                }
-
-                @Override
-                public void update(Acceleration linearAcceleration) {
-                    if (acceleration != null) {
-                        Acceleration accelPrev = acceleration;
-                        Velocity velocPrev = velocity;
-                        acceleration = linearAcceleration;
-
-                        Velocity velocDelta = NavUtil.meanIntegrate(acceleration, accelPrev);
-                        velocity = NavUtil.plus(velocity, velocDelta);
-
-                        Position positDelta = NavUtil.meanIntegrate(velocity, velocPrev);
-                        position = NavUtil.plus(position, positDelta);
-                    } else {
-                        acceleration = linearAcceleration;
-                    }
-                }
-            };
+            parameters.accelerationIntegrationAlgorithm = new AccelerationIntegrator(averageOver);
             imu = get(map, "imu");
             imu.initialize(parameters);
             imu.startAccelerationIntegration(null, null, 1);
@@ -119,75 +71,68 @@ public class Controller {
     public double getPower() {
         return power;
     }
-    public Controller setPower(double power) {
+    public void setPower(double power) {
         if (power < 0 || power > 1)
             throw new IllegalArgumentException("power outside of bounds [0, 1].");
         this.power = power;
-        return this;
     }
 
     public float getRotateAccuracy() {
         return rotateAccuracy;
     }
-    public Controller setRotateAccuracy(float rotateAccuracy) {
+    public void setRotateAccuracy(float rotateAccuracy) {
         if (rotateAccuracy < 0)
             throw new IllegalArgumentException("rotateAccuracy must be positive.");
         this.rotateAccuracy = rotateAccuracy;
-        return this;
     }
 
     public boolean isLogging() {
         return logging;
     }
-    public Controller setLogging(boolean logging) {
+    public void setLogging(boolean logging) {
         this.logging = logging;
-        return this;
     }
 
-    public Controller setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
+    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
         for (DcMotor motor : motors)
             motor.setZeroPowerBehavior(behavior);
-        return this;
     }
 
-    public Controller sleep(double seconds) {
+    public void sleep(double seconds) {
         try {
             Thread.sleep((long) (seconds * 1000));
         } catch (Exception e) {
             Thread.currentThread().interrupt();
         }
-        return this;
     }
 
     private void setMotorsPower(double power, DcMotor...motors) {
         for (DcMotor motor : motors) motor.setPower(power);
     }
 
-    public Controller armUp(double seconds) {
+    public void armUp(double seconds) {
         arm.setPosition(0);
-        return sleepThenBrake(seconds, arm);
+        sleepThenBrake(seconds, arm);
     }
-    public Controller armDown(double seconds) {
+    public void armDown(double seconds) {
         arm.setPosition(1);
-        return sleepThenBrake(seconds, arm);
+        sleepThenBrake(seconds, arm);
     }
-    public Controller holdArmDown(double seconds) {
+    public void holdArmDown(double seconds) {
         arm.setPosition(1);
         sleep(seconds);
-        return this;
     }
-    public Controller closeHand() {
+    public void closeHand() {
         hand.setPosition(0);
-        return sleepThenBrake(1, hand);
+        sleepThenBrake(1, hand);
     }
-    public Controller openHand() {
+    public void openHand() {
         hand.setPosition(1);
-        return sleepThenBrake(1, hand);
+        sleepThenBrake(1, hand);
     }
-    private Controller sleepThenBrake(double seconds, Servo servo) {
+    private void sleepThenBrake(double seconds, Servo servo) {
         sleep(seconds);
         servo.setPosition(.5);
-        return this;
     }
 
     public BotController moveByTime() {
@@ -375,6 +320,4 @@ public class Controller {
          */
         public abstract BotController move(Direction direction1, double x, Direction direction2, double y);
     }
-
-
 }

@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public final class AutoModes {
     private AutoModes(){}
 
-    private static Controller startSequence(LinearOpMode mode, boolean useSensors) {
-        Controller controller = new Controller(mode, useSensors);
+    private static Controller startSequence(LinearOpMode mode, boolean useSensors, int averageOver) {
+        Controller controller = new Controller(mode, useSensors, averageOver);
         mode.telemetry.addData("Status", "Initialized");
         mode.telemetry.update();
         mode.waitForStart();
@@ -21,8 +21,9 @@ public final class AutoModes {
 
         @Override
         public void runOpMode() throws InterruptedException {
-            Controller controller = startSequence(this, false);
+            Controller controller = startSequence(this, false, 0);
 
+            //MoveLeftFoundation with combined movements
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .move(Direction.LEFT, .45, Direction.FORWARD, 1.6)
@@ -39,7 +40,7 @@ public final class AutoModes {
     public static class MoveLeftFoundation extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            go(startSequence(this, false));
+            go(startSequence(this, false, 0));
         }
 
         static void go(Controller controller) {
@@ -62,7 +63,7 @@ public final class AutoModes {
 
         @Override
         public void runOpMode() throws InterruptedException {
-            MoveLeftFoundation.go(startSequence(this, false).flip());
+            MoveLeftFoundation.go(startSequence(this, false, 0).flip());
         }
     }
 
@@ -71,7 +72,7 @@ public final class AutoModes {
 
         @Override
         public void runOpMode() throws InterruptedException {
-            go(startSequence(this, false));
+            go(startSequence(this, false, 0));
         }
 
         static void go(Controller controller) {
@@ -110,7 +111,7 @@ public final class AutoModes {
 
         @Override
         public void runOpMode() throws InterruptedException {
-            MoveLeftStones.go(startSequence(this, false).flip());
+            MoveLeftStones.go(startSequence(this, false, 0).flip());
         }
     }
 }

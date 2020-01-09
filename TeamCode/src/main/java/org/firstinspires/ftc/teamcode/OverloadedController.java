@@ -8,11 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.NavUtil;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 @SuppressWarnings("WeakerAccess")
 public class OverloadedController {
@@ -44,50 +40,7 @@ public class OverloadedController {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
-        parameters.accelerationIntegrationAlgorithm = new BNO055IMU.AccelerationIntegrator() {
-            private Position position;
-            private Velocity velocity;
-            private Acceleration acceleration;
-
-            @Override
-            public void initialize(BNO055IMU.Parameters parameters, Position initialPosition, Velocity initialVelocity) {
-                this.position = new Position(DistanceUnit.METER, 0, 0, 0, 0);
-                this.velocity = new Velocity(DistanceUnit.METER, 0, 0, 0, 0);
-                this.acceleration = null;
-            }
-
-            @Override
-            public Position getPosition() {
-                return position;
-            }
-
-            @Override
-            public Velocity getVelocity() {
-                return velocity;
-            }
-
-            @Override
-            public Acceleration getAcceleration() {
-                return acceleration;
-            }
-
-            @Override
-            public void update(Acceleration linearAcceleration) {
-                if (acceleration != null) {
-                    Acceleration accelPrev = acceleration;
-                    Velocity velocPrev = velocity;
-                    acceleration = linearAcceleration;
-
-                    Velocity velocDelta = NavUtil.meanIntegrate(acceleration, accelPrev);
-                    velocity = NavUtil.plus(velocity, velocDelta);
-
-                    Position positDelta = NavUtil.meanIntegrate(velocity, velocPrev);
-                    position = NavUtil.plus(position, positDelta);
-                } else {
-                    acceleration = linearAcceleration;
-                }
-            }
-        };
+        parameters.accelerationIntegrationAlgorithm = new AccelerationIntegrator(5);
         imu = get(map, "imu");
         imu.initialize(parameters);
         imu.startAccelerationIntegration(null, null, 1);

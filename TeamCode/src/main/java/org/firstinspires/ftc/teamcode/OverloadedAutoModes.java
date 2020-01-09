@@ -32,14 +32,20 @@ public final class OverloadedAutoModes {
         return controller;
     }
 
-    @Autonomous
+    @Autonomous(name = "Distance square test")
     public static class Test extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
             OverloadedController c = startSequence(this);
+            double dist = .5;
 
-            c
-                    .holdArmDown(2000);
+            for (int i = 0; i < 10; i++) {
+                c
+                        .distForward(dist)
+                        .distRight(dist)
+                        .distReverse(dist)
+                        .distLeft(dist);
+            }
         }
     }
 
@@ -78,7 +84,7 @@ public final class OverloadedAutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(name = "Move Left Foundation", group = "Overloaded")
     public static class MoveLeftFoundation extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -98,7 +104,7 @@ public final class OverloadedAutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(name = "Move Right Foundation", group = "Overloaded")
     public static class MoveRightFoundation extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {

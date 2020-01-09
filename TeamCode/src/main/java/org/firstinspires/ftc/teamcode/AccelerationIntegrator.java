@@ -17,6 +17,7 @@ public class AccelerationIntegrator implements BNO055IMU.AccelerationIntegrator 
     private final int averageOver;
 
     public AccelerationIntegrator(int averageOver) {
+        if (averageOver <= 0) throw new IllegalArgumentException("averageOver must be a positive number.");
         this.averageOver = averageOver;
         accelSums = new Acceleration(DistanceUnit.METER, 0, 0, 0, 0);
         added = 0;
