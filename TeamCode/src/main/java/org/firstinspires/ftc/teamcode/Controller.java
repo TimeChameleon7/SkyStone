@@ -14,14 +14,12 @@ public class Controller {
     //todo four directions then moveRel that calls them
     //todo rotation decelerate when close
     //todo logging methods
-    //todo possible addition of opModeIsActive checking during sleeps or during logging calls
 
     private final DcMotor[] motors;
     final Servo arm;
     private final Servo hand;
     private final Telemetry telemetry;
     private final BNO055IMU imu;
-    private final boolean useSensors;
     private double power;
     private float rotateAccuracy;
     private boolean logging;
@@ -39,7 +37,6 @@ public class Controller {
         hand = get(map, "servoOne");
         telemetry = mode.telemetry;
 
-        this.useSensors = useSensors;
         this.rotateAccuracy = .1f;
         this.power = 1;
         logging = false;

@@ -12,8 +12,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 @SuppressWarnings("WeakerAccess")
 public class OverloadedController {
-    //todo rotation deaccelerate when close
-    //todo logging methods
 
     private final DcMotor[] motors;
     final Servo arm;
@@ -254,8 +252,11 @@ public class OverloadedController {
         Position posPrev = imu.getPosition();
         normalMotor.setPower(power);
         reversedMotor.setPower(-power);
-        while (distanceSq(posPrev, imu.getPosition()) < goalDistance) {
+        Position position = imu.getPosition();
+        while (distanceSq(posPrev, position) < goalDistance) {
             sleep(1);
+            telemetry.addData("Accel", "(%f, %f, %f)", position.x, position.y, position.z);
+            telemetry.update();
         }
         normalMotor.setPower(0);
         reversedMotor.setPower(0);

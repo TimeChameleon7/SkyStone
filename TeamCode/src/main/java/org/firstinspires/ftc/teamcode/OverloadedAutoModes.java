@@ -124,6 +124,7 @@ public final class OverloadedAutoModes {
         }
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     @Disabled
     @Autonomous
     public static class TensorFlow extends LinearOpMode {
