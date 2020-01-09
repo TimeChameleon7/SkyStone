@@ -32,6 +32,7 @@ public final class OverloadedAutoModes {
         return controller;
     }
 
+    @Disabled
     @Autonomous(name = "Distance square test")
     public static class Test extends LinearOpMode {
         @Override
@@ -49,6 +50,7 @@ public final class OverloadedAutoModes {
         }
     }
 
+    @Disabled
     @Autonomous
     public static class Brick extends LinearOpMode {
         @Override
@@ -84,6 +86,7 @@ public final class OverloadedAutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(name = "Move Left Foundation", group = "Overloaded")
     public static class MoveLeftFoundation extends LinearOpMode {
         @Override
@@ -104,6 +107,7 @@ public final class OverloadedAutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(name = "Move Right Foundation", group = "Overloaded")
     public static class MoveRightFoundation extends LinearOpMode {
         @Override

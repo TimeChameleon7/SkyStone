@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public final class AutoModes {
@@ -16,6 +17,7 @@ public final class AutoModes {
         return controller;
     }
 
+    @Disabled
     @Autonomous
     public static class Test extends LinearOpMode {
 
