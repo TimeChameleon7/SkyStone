@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 @SuppressWarnings("WeakerAccess")
@@ -253,9 +254,10 @@ public class OverloadedController {
         normalMotor.setPower(power);
         reversedMotor.setPower(-power);
         Position position = imu.getPosition();
+        Acceleration acceleration = imu.getAcceleration();
         while (distanceSq(posPrev, position) < goalDistance) {
             sleep(1);
-            telemetry.addData("Accel", "(%f, %f, %f)", position.x, position.y, position.z);
+            telemetry.addData("Accel", "(%f, %f, %f)", acceleration.xAccel, acceleration.yAccel, acceleration.zAccel);
             telemetry.update();
         }
         normalMotor.setPower(0);
