@@ -20,19 +20,14 @@ public class BotController {
         motors[1] = get(map, "two");
         motors[2] = get(map, "three");
         motors[3] = get(map, "four");
-        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        for (DcMotor motor : motors) motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm = get(map, "servoArm");
         hand = get(map, "servoOne");
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T get(HardwareMap map, String name) {
+    static <T> T get(HardwareMap map, String name) {
         return (T) map.get(name);
-    }
-
-    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
-        for (DcMotor motor : motors)
-            motor.setZeroPowerBehavior(behavior);
     }
 
     public void sleep(double seconds) {

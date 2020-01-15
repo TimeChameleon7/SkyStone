@@ -11,9 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @SuppressWarnings("WeakerAccess")
 public class Controller {
 
-    //todo four directions then moveRel that calls them
     //todo rotation decelerate when close
-    //todo logging methods
 
     private final DcMotor[] motors;
     final Servo arm;
