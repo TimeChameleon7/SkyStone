@@ -67,6 +67,14 @@ public class BotController {
         for (DcMotor motor : motors) motor.setPower(power);
     }
 
+    /**
+     * Rotates the bot toward the direction supplied with the power supplied.
+     *
+     * Call this method with the same direction and 0 power to stop the movement.
+     *
+     * @param direction Determines if the power supplied will be negated or not.
+     * @param power Power to assign to the motors used.
+     */
     public void rotate(Direction direction, double power) {
         switch (direction) {
             case LEFT:  setMotorsPower(power, motors);  break;
@@ -75,12 +83,29 @@ public class BotController {
         }
     }
 
+    /**
+     * Moves the bot towards the direction supplied with the power supplied.
+     *
+     * Call this method with the same direction and 0 power to stop the movement.
+     *
+     * @param direction Determines which motors will be used to complete the operation.
+     * @param power Power to assign to the motors used.
+     */
     public void move(Direction direction, double power) {
         DcMotor[] motors = getMotors(direction);
         motors[0].setPower(power);
         motors[1].setPower(-power);
     }
 
+    /**
+     * Returns a 2 length array of DcMotors determined by the direction.
+     * In order to achieve movement in the direction specified, the user must
+     * set a positive power to the index 0 motor, and a negative power to the
+     * index 1 motor.
+     *
+     * @param direction Determines which motors are returned
+     * @return a 2 length array of DcMotors determined by the direction
+     */
     private DcMotor[] getMotors(Direction direction) {
         switch (direction) {
             case FORWARD:   return new DcMotor[]{motors[0], motors[2]};
