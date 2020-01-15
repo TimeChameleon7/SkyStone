@@ -24,10 +24,9 @@ public final class AutoModes {
         public void runOpMode() throws InterruptedException {
             Controller controller = startSequence(this, false, 0);
 
-            controller.moveByTime() ;
-
-
-
+            controller.moveByTime()
+                    .rotate(Direction.LEFT, 1.21)
+                    .sleep(.3);
         }
     }
 
@@ -106,7 +105,7 @@ public final class AutoModes {
                     .move(Direction.REVERSE, .5)
                     //second stone is placed
                     .armDown(.2)
-                    .rotate(Direction.RIGHT, .01)
+                    //.rotate(Direction.RIGHT, .01)
                     .move(Direction.REVERSE, 2.1)
                     .armUp(.5)
                     .rotate(Direction.RIGHT, .41)
@@ -138,7 +137,7 @@ public final class AutoModes {
                     .holdArmDown(.5)
                     .move(Direction.REVERSE, 1.2)
                     .setPower(1)
-                    .rotate(Direction.LEFT, 1.31)
+                    .rotate(Direction.LEFT, 1.21)
                     .sleep(.3)
                     .move(Direction.FORWARD, 2)
                     .armUp(.7)
@@ -155,12 +154,12 @@ public final class AutoModes {
                     .holdArmDown(.5)
                     .move(Direction.REVERSE, 1.4)
                     .setPower(1)
-                    .rotate(Direction.LEFT, 1.32)
-                    .move(Direction.FORWARD, 2);
+                    .rotate(Direction.LEFT, 1.22)
+                    .move(Direction.FORWARD, 2)
                     //seconds stone is placed
-                    /*
                     .armUp(.6)
-                    .move(Direction.REVERSE, .6)
+                    .move(Direction.REVERSE, .6);
+                    /*
                     .armDown(.3)
                     .move(Direction.REVERSE, 1.7)
                     .sleep(.1)

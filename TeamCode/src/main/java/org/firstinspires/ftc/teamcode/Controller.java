@@ -46,7 +46,7 @@ public class Controller {
             parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
             parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
             parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
-            parameters.accelerationIntegrationAlgorithm = new AccelerationIntegrator(averageOver);
+            parameters.accelerationIntegrationAlgorithm = new SmoothingIntegrator(averageOver);
             imu = get(map, "imu");
             imu.initialize(parameters);
             imu.startAccelerationIntegration(null, null, 1);

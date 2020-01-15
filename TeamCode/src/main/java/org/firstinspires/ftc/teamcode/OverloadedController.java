@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 @SuppressWarnings("WeakerAccess")
 public class OverloadedController {
@@ -39,7 +40,7 @@ public class OverloadedController {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
-        parameters.accelerationIntegrationAlgorithm = new AccelerationIntegrator(5);
+        parameters.accelerationIntegrationAlgorithm = new SmoothingIntegrator(5);
         imu = get(map, "imu");
         imu.initialize(parameters);
         imu.startAccelerationIntegration(null, null, 1);
@@ -82,6 +83,17 @@ public class OverloadedController {
     }
     public void setLogging(boolean logging) {
         this.logging = logging;
+    }
+
+    public void logData() {
+        Acceleration acceleration = imu.getAcceleration();
+        Velocity velocity = imu.getVelocity();
+        Position position = imu.getPosition();
+        telemetry
+                .addData("Accel", acceleration)
+                .addData("Veloc", velocity)
+                .addData("Posit", position);
+        telemetry.update();
     }
 
     public OverloadedController setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
@@ -217,7 +229,6 @@ public class OverloadedController {
         while (true) {
             float a = getAngle();
             if (isWithinRotationAccuracy(a, g)) break;
-            //left and right possibly swapped
             if (alignGoal(g - a) < 0) setMotorsPower(-power);
             else setMotorsPower(power);
         }
@@ -254,10 +265,15 @@ public class OverloadedController {
         normalMotor.setPower(power);
         reversedMotor.setPower(-power);
         Position position = imu.getPosition();
-        Acceleration acceleration = imu.getAcceleration();
         while (distanceSq(posPrev, position) < goalDistance) {
+            Acceleration acceleration = imu.getAcceleration();
+            Velocity velocity = imu.getVelocity();
+            position = imu.getPosition();
             sleep(1);
-            telemetry.addData("Accel", "(%f, %f, %f)", acceleration.xAccel, acceleration.yAccel, acceleration.zAccel);
+            telemetry
+                    .addData("Accel", acceleration)
+                    .addData("Veloc", velocity)
+                    .addData("Posit", position);
             telemetry.update();
         }
         normalMotor.setPower(0);

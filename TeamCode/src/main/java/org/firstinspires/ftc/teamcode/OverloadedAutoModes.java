@@ -32,8 +32,7 @@ public final class OverloadedAutoModes {
         return controller;
     }
 
-    @Disabled
-    @Autonomous(name = "Distance square test")
+    @Autonomous(name = "Log Data")
     public static class Test extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -43,9 +42,13 @@ public final class OverloadedAutoModes {
             for (int i = 0; i < 10; i++) {
                 c
                         .distForward(dist)
+                        .sleep(300)
                         .distRight(dist)
+                        .sleep(300)
                         .distReverse(dist)
-                        .distLeft(dist);
+                        .sleep(300)
+                        .distLeft(dist)
+                        .sleep(300);
             }
         }
     }
