@@ -7,7 +7,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Direction;
 
 /**
- * Low Level Bot Controller, uses a bot's hardware to do basic movement.
+ * Low Level Bot Controller, uses a bot's hardware for basic movement functionality, and
+ * makes that functionality easily understandable.
  */
 public class BotController {
     private final DcMotor[] motors;

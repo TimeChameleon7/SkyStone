@@ -12,4 +12,8 @@ public enum Direction {
             default: return this;
         }
     }
+
+    public boolean isXAxis() {
+        return this == LEFT || this == RIGHT;
+    }
 }
