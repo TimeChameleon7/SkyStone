@@ -40,7 +40,9 @@ public final class AutoModes {
         static void go(Controller controller) {
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
+                    .sleep(.3)
                     .move(Direction.LEFT, .45)
+                    .sleep(.3)
                     .move(Direction.FORWARD, 1.6)
                     .holdArmDown(1.2)
                     .setPower(.5)
@@ -48,6 +50,7 @@ public final class AutoModes {
                     .armUp(.7)
                     .setPower(1)
                     .move(Direction.FORWARD, .2)
+                    .sleep(.3)
                     .move(Direction.RIGHT, 2.6);
         }
     }
