@@ -151,4 +151,87 @@ public class Controller {
             return this;
         }
     }
+
+    public SensorBasedMovements moveBySensor() {
+        if (imu != null) {
+            if (flipped) {
+                return new SensorBasedMovements() {
+                    @Override
+                    public SensorBasedMovements move(Direction direction, double distance) {
+                        return direction.isXAxis() ?
+                                super.move(direction.opposite(), distance) :
+                                super.move(direction, distance);
+                    }
+
+                    @Override
+                    public SensorBasedMovements rotate(Direction direction, float dAngle) {
+                        return super.rotate(direction.opposite(), dAngle);
+                    }
+                };
+            } else {
+                return new SensorBasedMovements();
+            }
+        } else {
+            throw new UnsupportedOperationException(
+                    "useSensors must be true upon initialization of this class " +
+                            "in order to use moveBySensor"
+            );
+        }
+    }
+    public class SensorBasedMovements {
+        public SensorBasedMovements move(Direction direction, double distance) {
+            throw new UnsupportedOperationException(
+                    "sensor based movement is currently not supported"
+            );
+        }
+
+        public SensorBasedMovements rotate(Direction direction, float dAngle) {
+            if (direction == Direction.LEFT) dAngle += getAngle();
+            else if (direction == Direction.RIGHT) dAngle = getAngle() - dAngle;
+            float goal = alignAngle(dAngle);
+            while (true) {
+                float a = getAngle();
+                if (Math.abs())
+            }
+        }
+
+        public SensorBasedMovements sleep(double seconds) {
+            Controller.this.sleep(seconds);
+            return this;
+        }
+
+        public SensorBasedMovements armUp(double seconds) {
+            Controller.this.armUp(seconds);
+            return this;
+        }
+        public SensorBasedMovements armDown(double seconds) {
+            Controller.this.armDown(seconds);
+            return this;
+        }
+        public SensorBasedMovements holdArmDown(double seconds) {
+            Controller.this.holdArmDown(seconds);
+            return this;
+        }
+        public SensorBasedMovements closeHand() {
+            Controller.this.closeHand();
+            return this;
+        }
+        public SensorBasedMovements openHand() {
+            Controller.this.openHand();
+            return this;
+        }
+        public SensorBasedMovements setPower(double power) {
+            Controller.this.setPower(power);
+            return this;
+        }
+
+        private float getAngle() {
+            return imu.getAngularOrientation().firstAngle;
+        }
+        private float alignAngle(float angle) {
+            if (angle < -180) return angle + 360;
+            if (angle > 180) return angle - 360;
+            return angle;
+        }
+    }
 }
