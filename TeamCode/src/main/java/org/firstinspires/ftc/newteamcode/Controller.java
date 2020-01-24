@@ -6,9 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Direction;
 import org.firstinspires.ftc.teamcode.SmoothingIntegrator;
 
+@SuppressWarnings("WeakerAccess")
 public class Controller {
 
-    //todo rotation decelerate when close
+    //todo add sensor based rotation, decelerate when close
 
     /**
      * A low level BotController, alternatively the Controller class could
@@ -105,7 +106,7 @@ public class Controller {
             return new TimeBasedMovements();
         }
     }
-    private class TimeBasedMovements {
+    public class TimeBasedMovements {
         public TimeBasedMovements move(Direction direction, double seconds) {
             bot.move(direction, power);
             bot.sleep(seconds);
@@ -143,6 +144,10 @@ public class Controller {
         }
         public TimeBasedMovements openHand() {
             Controller.this.openHand();
+            return this;
+        }
+        public TimeBasedMovements setPower(double power) {
+            Controller.this.setPower(power);
             return this;
         }
     }

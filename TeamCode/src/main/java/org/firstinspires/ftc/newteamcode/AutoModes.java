@@ -1,13 +1,15 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.newteamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-public final class AutoModes {
-    private AutoModes() {}
+import org.firstinspires.ftc.teamcode.Direction;
 
-    private static Controller startSequence(LinearOpMode mode, boolean useSensors, int averageOver) {
-        Controller controller = new Controller(mode, useSensors, averageOver);
+public class AutoModes {
+    private AutoModes(){}
+
+    private static Controller startSequence(LinearOpMode mode, boolean useSensors) {
+        Controller controller = new Controller(mode, useSensors);
         mode.telemetry.addData("Status", "Initialized");
         mode.telemetry.update();
         mode.waitForStart();
@@ -21,10 +23,9 @@ public final class AutoModes {
 
         @Override
         public void runOpMode() throws InterruptedException {
-            Controller controller = startSequence(this, false, 0);
+            Controller controller = startSequence(this, false);
 
             controller.moveByTime();
-
         }
     }
 
@@ -32,7 +33,7 @@ public final class AutoModes {
     public static class FoundationLeft extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            go(startSequence(this, false, 0));
+            go(startSequence(this, false));
         }
 
         static void go(Controller controller) {
@@ -58,19 +59,16 @@ public final class AutoModes {
 
         @Override
         public void runOpMode() throws InterruptedException {
-            FoundationLeft.go(startSequence(this, false, 0).flip());
+            FoundationLeft.go(startSequence(this, false).flip());
         }
     }
 
     @Autonomous
     public static class StonesLeft extends LinearOpMode {
-
         @Override
         public void runOpMode() throws InterruptedException {
-            go(startSequence(this, false, 0));
-        }
+            Controller controller = startSequence(this, false);
 
-        static void go(Controller controller) {
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
@@ -122,10 +120,9 @@ public final class AutoModes {
 
     @Autonomous
     public static class StonesRight extends LinearOpMode {
-
         @Override
         public void runOpMode() throws InterruptedException {
-            Controller controller = startSequence(this, false, 0);
+            Controller controller = startSequence(this, false);
 
             controller.flip().moveByTime()
                     .move(Direction.FORWARD, .2)
@@ -173,7 +170,6 @@ public final class AutoModes {
                     .setPower(1)
                     .rotate(Direction.LEFT, .41)
                     .move(Direction.FORWARD, 2.3);
-
         }
     }
 
@@ -181,7 +177,7 @@ public final class AutoModes {
     public static class StonesLeft1 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            go(startSequence(this, false, 0));
+            go(startSequence(this, false));
         }
 
         static void go(Controller controller) {
@@ -222,7 +218,7 @@ public final class AutoModes {
     public static class StonesLeft3 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            go(startSequence(this, false, 0));
+            go(startSequence(this, false));
         }
 
         static void go(Controller controller) {
