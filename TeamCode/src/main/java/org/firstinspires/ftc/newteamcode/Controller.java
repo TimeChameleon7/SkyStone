@@ -188,11 +188,17 @@ public class Controller {
         public SensorBasedMovements rotate(Direction direction, float dAngle) {
             if (direction == Direction.LEFT) dAngle += getAngle();
             else if (direction == Direction.RIGHT) dAngle = getAngle() - dAngle;
-            float goal = alignAngle(dAngle);
+            final float goal = alignAngle(dAngle);
             while (true) {
                 float a = getAngle();
-                if (Math.abs())
+                float dist = distFromGoal(a, goal);
+                if (dist <= rotateAccuracy) break;
+                double power = distBasedPower(dist);
+                if (alignAngle(goal - a) < 0) bot.rotate(Direction.RIGHT, power);
+                else bot.rotate(Direction.LEFT, power);
             }
+            bot.rotate(Direction.RIGHT, 0);
+            return this;
         }
 
         public SensorBasedMovements sleep(double seconds) {
@@ -232,6 +238,16 @@ public class Controller {
             if (angle < -180) return angle + 360;
             if (angle > 180) return angle - 360;
             return angle;
+        }
+        private float distFromGoal(float a, float goal) {
+            float dist = Math.abs(goal - a);
+            if (dist <= 180) return dist;
+            return a < goal ? Math.abs(goal - a - 360) : Math.abs(goal - a + 360);
+        }
+        private final double ln180 = Math.log(180);
+        private double distBasedPower(float dist) {
+            double power = getPower() * Math.log(dist) / ln180;
+            return Math.min(Math.max(power, getPower() / 10), 1);
         }
     }
 }
