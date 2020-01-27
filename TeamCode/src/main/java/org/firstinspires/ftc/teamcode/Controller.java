@@ -7,7 +7,6 @@ import java.util.HashMap;
 
 @SuppressWarnings("WeakerAccess")
 public class Controller {
-    //todo String-HashMap based orientation checkpoints.
 
     /**
      * A low level BotController, alternatively the Controller class could
