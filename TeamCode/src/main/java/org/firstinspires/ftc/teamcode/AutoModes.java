@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import java.util.Random;
+
 public class AutoModes {
     private AutoModes(){}
 
@@ -25,12 +27,13 @@ public class AutoModes {
 
             Controller.TimeBasedMovements moveByTime = controller.moveByTime();
             Controller.SensorBasedMovements moveBySensor = controller.moveBySensor();
-            controller.setRotateAccuracy(0);
+            Random r = new Random();
+            moveBySensor.saveOrientation("start");
             for (int i = 0; i < 10; i++) {
-                moveByTime.move(Direction.FORWARD, .5);
-                controller.sleep(.1);
-                moveBySensor.rotate(Direction.RIGHT, 90, .41);
-                controller.armUp(.1);
+                moveByTime.rotate(Direction.LEFT, r.nextInt(10) / 5);
+                moveBySensor
+                        .gotoOrientation("start")
+                        .armUp(.1);
             }
         }
     }

@@ -3,10 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import java.util.HashMap;
+
 @SuppressWarnings("WeakerAccess")
 public class Controller {
-
-    //todo add sensor based rotation, decelerate when close
+    //todo String-HashMap based orientation checkpoints.
 
     /**
      * A low level BotController, alternatively the Controller class could
@@ -18,7 +19,8 @@ public class Controller {
     private final LinearOpMode mode;
     private double power;
     private boolean flipped;
-//todo String-HashMap based orientation checkpoints.
+    private final HashMap<String, Float> orientationCheckpoints;
+
     public Controller(LinearOpMode mode, boolean useSensors) {
         bot = new BotController(mode.hardwareMap);
         this.mode = mode;
@@ -31,8 +33,10 @@ public class Controller {
             imu = BotController.get(mode.hardwareMap, "imu");
             imu.initialize(parameters);
             imu.startAccelerationIntegration(null, null, 1);
+            orientationCheckpoints = new HashMap<>();
         } else {
             imu = null;
+            orientationCheckpoints = null;
         }
         power = 1;
     }
@@ -176,17 +180,7 @@ public class Controller {
         public SensorBasedMovements rotate(Direction direction, float dAngle) {
             if (direction == Direction.LEFT) dAngle += getAngle();
             else if (direction == Direction.RIGHT) dAngle = getAngle() - dAngle;
-            final float goal = alignAngle(dAngle);
-            while (true) {
-                float a = getAngle();
-                float dist = distFromGoal(a, goal);
-                if (dist == 0) break;
-                double power = distBasedPower(dist);
-                if (alignAngle(goal - a) < 0) bot.rotate(Direction.RIGHT, power);
-                else bot.rotate(Direction.LEFT, power);
-            }
-            bot.rotate(Direction.RIGHT, 0);
-            return this;
+            return rotateAbs(alignAngle(dAngle));
         }
 
         public SensorBasedMovements rotate(Direction direction, float dAngle, double seconds) {
@@ -196,6 +190,10 @@ public class Controller {
             bot.rotate(direction, power);
             bot.sleep(seconds);
             bot.rotate(direction, 0);
+            return rotateAbs(goal);
+        }
+
+        private SensorBasedMovements rotateAbs(final float goal) {
             while (!mode.isStopRequested()) {
                 float a = getAngle();
                 float dist = distFromGoal(a, goal);
@@ -206,6 +204,17 @@ public class Controller {
                 sleep(.001);
             }
             bot.rotate(Direction.RIGHT, 0);
+            return this;
+        }
+
+        public SensorBasedMovements saveOrientation(String name) {
+            //noinspection ConstantConditions
+            orientationCheckpoints.put(name, getAngle());
+            return this;
+        }
+
+        public SensorBasedMovements gotoOrientation(String name) {
+            rotateAbs(orientationCheckpoints.get(name));
             return this;
         }
 
