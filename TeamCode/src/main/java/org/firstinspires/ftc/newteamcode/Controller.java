@@ -232,6 +232,7 @@ public class Controller {
         }
 
         private float getAngle() {
+            //noinspection ConstantConditions
             return imu.getAngularOrientation().firstAngle;
         }
         private float alignAngle(float angle) {
