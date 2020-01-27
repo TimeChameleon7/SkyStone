@@ -2,60 +2,39 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @SuppressWarnings("WeakerAccess")
 public class Controller {
 
-    //todo rotation decelerate when close
+    //todo add sensor based rotation, decelerate when close
 
-    private final DcMotor[] motors;
-    final Servo arm;
-    private final Servo hand;
-    private final Telemetry telemetry;
+    /**
+     * A low level BotController, alternatively the Controller class could
+     * extend BotController, but this is not done to prevent accidental
+     * incorrect method usage.
+     */
+    private final BotController bot;
     private final BNO055IMU imu;
+    private final LinearOpMode mode;
     private double power;
-    private float rotateAccuracy;
-    private boolean logging;
     private boolean flipped;
-
-    public Controller(LinearOpMode mode, boolean useSensors, int averageOver) {
-        HardwareMap map = mode.hardwareMap;
-        motors = new DcMotor[4];
-        motors[0] = get(map, "one");
-        motors[1] = get(map, "two");
-        motors[2] = get(map, "three");
-        motors[3] = get(map, "four");
-        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        arm = get(map, "servoArm");
-        hand = get(map, "servoOne");
-        telemetry = mode.telemetry;
-
-        this.rotateAccuracy = .1f;
-        this.power = 1;
-        logging = false;
-
+//todo String-HashMap based orientation checkpoints.
+    public Controller(LinearOpMode mode, boolean useSensors) {
+        bot = new BotController(mode.hardwareMap);
+        this.mode = mode;
         if (useSensors) {
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
             parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
             parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
             parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
-            parameters.accelerationIntegrationAlgorithm = new SmoothingIntegrator(averageOver);
-            imu = get(map, "imu");
+            parameters.accelerationIntegrationAlgorithm = new SmoothingIntegrator(5);
+            imu = BotController.get(mode.hardwareMap, "imu");
             imu.initialize(parameters);
             imu.startAccelerationIntegration(null, null, 1);
         } else {
             imu = null;
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> T get(HardwareMap map, String name) {
-        return (T) map.get(name);
+        power = 1;
     }
 
     public Controller flip() {
@@ -72,27 +51,6 @@ public class Controller {
         this.power = power;
     }
 
-    public float getRotateAccuracy() {
-        return rotateAccuracy;
-    }
-    public void setRotateAccuracy(float rotateAccuracy) {
-        if (rotateAccuracy < 0)
-            throw new IllegalArgumentException("rotateAccuracy must be positive.");
-        this.rotateAccuracy = rotateAccuracy;
-    }
-
-    public boolean isLogging() {
-        return logging;
-    }
-    public void setLogging(boolean logging) {
-        this.logging = logging;
-    }
-
-    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
-        for (DcMotor motor : motors)
-            motor.setZeroPowerBehavior(behavior);
-    }
-
     public void sleep(double seconds) {
         try {
             Thread.sleep((long) (seconds * 1000));
@@ -101,218 +59,202 @@ public class Controller {
         }
     }
 
-    private void setMotorsPower(double power, DcMotor...motors) {
-        for (DcMotor motor : motors) motor.setPower(power);
-    }
-
     public void armUp(double seconds) {
-        arm.setPosition(0);
-        sleepThenBrake(seconds, arm);
+        bot.armUp(seconds);
     }
     public void armDown(double seconds) {
-        arm.setPosition(1);
-        sleepThenBrake(seconds, arm);
+        bot.armDown(seconds);
     }
     public void holdArmDown(double seconds) {
-        arm.setPosition(1);
-        sleep(seconds);
+        bot.holdArmDown(seconds);
     }
     public void closeHand() {
-        hand.setPosition(0);
-        sleepThenBrake(1, hand);
+        bot.closeHand();
     }
     public void openHand() {
-        hand.setPosition(1);
-        sleepThenBrake(1, hand);
-    }
-    private void sleepThenBrake(double seconds, Servo servo) {
-        sleep(seconds);
-        servo.setPosition(.5);
+        bot.openHand();
     }
 
-    public BotController moveByTime() {
-        abstract class Core extends BotController {
-            @Override
-            public BotController move(Direction direction, double seconds) {
-                DcMotor[] motors = getMotors(direction);
-                motors[0].setPower(power);
-                motors[1].setPower(-power);
-                sleep(seconds);
-                setMotorsPower(0, motors);
-                return this;
-            }
-
-            @Override
-            public BotController move(Direction direction1, double seconds1, Direction direction2, double seconds2) {
-                if (direction1 == direction2) throw new IllegalArgumentException("Directions may not be the same");
-                if (direction1.opposite() == direction2) throw new IllegalArgumentException("Directions may not be opposite of each other");
-
-                if (seconds1 > seconds2) {
-                    Direction tempDir = direction1;
-                    direction1 = direction2;
-                    direction2 = tempDir;
-                    double tempSec = seconds1;
-                    seconds1 = seconds2;
-                    seconds2 = tempSec;
-                }
-
-                DcMotor[] motors1 = getMotors(direction1);
-                DcMotor[] motors2 = getMotors(direction2);
-                setMotorsPower(power, motors1[0], motors2[0]);
-                setMotorsPower(-power, motors1[1], motors2[1]);
-                sleep(seconds1);
-                setMotorsPower(0, motors1);
-                sleep(seconds2 - seconds1);
-                setMotorsPower(0, motors2);
-                return this;
-            }
-
-            abstract protected DcMotor[] getMotors(Direction direction);
-        }
+    public TimeBasedMovements moveByTime() {
         if (flipped) {
-            return new Core() {
+            return new TimeBasedMovements() {
                 @Override
-                public BotController rotate(Direction direction, double seconds) {
-                    switch (direction) {
-                        case LEFT:  setMotorsPower(-power, motors); break;
-                        case RIGHT: setMotorsPower(power, motors);  break;
-                        default: throw new IllegalArgumentException("Direction may only be LEFT or RIGHT for rotations.");
-                    }
-                    sleep(seconds);
-                    setMotorsPower(0, motors);
-                    return this;
+                public TimeBasedMovements move(Direction direction, double seconds) {
+                    return direction.isXAxis() ?
+                            super.move(direction.opposite(), seconds) :
+                            super.move(direction, seconds);
                 }
 
                 @Override
-                protected DcMotor[] getMotors(Direction direction) {
-                    switch (direction) {
-                        case FORWARD:   return new DcMotor[]{motors[0], motors[2]};
-                        case REVERSE:   return new DcMotor[]{motors[2], motors[0]};
-                        case LEFT:      return new DcMotor[]{motors[1], motors[3]};
-                        case RIGHT:     return new DcMotor[]{motors[3], motors[1]};
-                        default:        throw new IllegalArgumentException("Direction is null");
-                    }
+                public TimeBasedMovements rotate(Direction direction, double seconds) {
+                    return super.rotate(direction.opposite(), seconds);
                 }
             };
         } else {
-            return new Core() {
-                @Override
-                public BotController rotate(Direction direction, double seconds) {
-                    switch (direction) {
-                        case LEFT:  setMotorsPower(power, motors);  break;
-                        case RIGHT: setMotorsPower(-power, motors); break;
-                        default: throw new IllegalArgumentException("Direction may only be LEFT or RIGHT for rotations.");
-                    }
-                    sleep(seconds);
-                    setMotorsPower(0, motors);
-                    return this;
-                }
-
-                @Override
-                protected DcMotor[] getMotors(Direction direction) {
-                    switch (direction) {
-                        case FORWARD:   return new DcMotor[]{motors[0], motors[2]};
-                        case REVERSE:   return new DcMotor[]{motors[2], motors[0]};
-                        case LEFT:      return new DcMotor[]{motors[3], motors[1]};
-                        case RIGHT:     return new DcMotor[]{motors[1], motors[3]};
-                        default:        throw new IllegalArgumentException("Direction is null");
-                    }
-                }
-            };
+            return new TimeBasedMovements();
         }
     }
-
-    abstract class BotController {
-
-        public double getPower() {
-            return power;
-        }
-        public BotController setPower(double power) {
-            Controller.this.setPower(power);
+    public class TimeBasedMovements {
+        public TimeBasedMovements move(Direction direction, double seconds) {
+            bot.move(direction, power);
+            bot.sleep(seconds);
+            bot.move(direction, 0);
             return this;
         }
 
-        public float getRotateAccuracy() {
-            return rotateAccuracy;
-        }
-        public BotController setRotateAccuracy(float rotateAccuracy) {
-            Controller.this.setRotateAccuracy(rotateAccuracy);
+        public TimeBasedMovements rotate(Direction direction, double seconds) {
+            bot.rotate(direction, power);
+            bot.sleep(seconds);
+            bot.rotate(direction, 0);
             return this;
         }
 
-        public boolean isLogging() {
-            return logging;
-        }
-        public BotController setLogging(boolean logging) {
-            Controller.this.setLogging(logging);
-            return this;
-        }
-
-        public BotController setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
-            Controller.this.setZeroPowerBehavior(behavior);
-            return this;
-        }
-
-        public BotController sleep(double seconds) {
+        public TimeBasedMovements sleep(double seconds) {
             Controller.this.sleep(seconds);
             return this;
         }
 
-        public BotController armUp(double seconds) {
+        public TimeBasedMovements armUp(double seconds) {
             Controller.this.armUp(seconds);
             return this;
         }
-        public BotController armDown(double seconds) {
+        public TimeBasedMovements armDown(double seconds) {
             Controller.this.armDown(seconds);
             return this;
         }
-        public BotController holdArmDown(double seconds) {
+        public TimeBasedMovements holdArmDown(double seconds) {
             Controller.this.holdArmDown(seconds);
             return this;
         }
-        public BotController closeHand() {
+        public TimeBasedMovements closeHand() {
             Controller.this.closeHand();
             return this;
         }
-        public BotController openHand() {
+        public TimeBasedMovements openHand() {
             Controller.this.openHand();
             return this;
         }
+        public TimeBasedMovements setPower(double power) {
+            Controller.this.setPower(power);
+            return this;
+        }
+    }
 
-        /**
-         * Rotates the bot using the number defined towards the direction defined.
-         *
-         * @param direction Direction to rotate the bot towards.
-         *                  Implementations only need to operate with
-         *                   Directions {@code LEFT} & {@code RIGHT},
-         *                   and may handle {@code FORWARD} & {@code REVERSE}
-         *                   as they wish.
-         * @param x usage is determined by the implementation.
-         *
-         * @return {@code this}.
-         */
-        public abstract BotController rotate(Direction direction, double x);
+    public SensorBasedMovements moveBySensor() {
+        if (imu != null) {
+            if (flipped) {
+                return new SensorBasedMovements() {
+                    @Override
+                    public SensorBasedMovements move(Direction direction, double distance) {
+                        return direction.isXAxis() ?
+                                super.move(direction.opposite(), distance) :
+                                super.move(direction, distance);
+                    }
 
-        /**
-         * Moves the bot using the number defined towards the direction defined.
-         *
-         * @param direction Direction to move the bot towards.
-         * @param x usage is determined by the implementation.
-         *
-         * @return {@code this}.
-         */
-        public abstract BotController move(Direction direction, double x);
+                    @Override
+                    public SensorBasedMovements rotate(Direction direction, float dAngle) {
+                        return super.rotate(direction.opposite(), dAngle);
+                    }
+                };
+            } else {
+                return new SensorBasedMovements();
+            }
+        } else {
+            throw new UnsupportedOperationException(
+                    "useSensors must be true upon initialization of this class " +
+                            "in order to use moveBySensor"
+            );
+        }
+    }
+    public class SensorBasedMovements {
+        public SensorBasedMovements move(Direction direction, double distance) {
+            throw new UnsupportedOperationException(
+                    "sensor based movement is currently not supported"
+            );
+        }
 
-        /**
-         * Moves the bot using the first number defined towards the direction defined, and moves the
-         *  bot using the second number towards the second direction defined at the same time.
-         *
-         * @param direction1 First direction to move the bot towards.
-         * @param x usage is determined by the implementation.
-         * @param direction2 Second direction to move the bot towards.
-         * @param y usage is determined by the implementation.
-         * @return {@code this}.
-         */
-        public abstract BotController move(Direction direction1, double x, Direction direction2, double y);
+        public SensorBasedMovements rotate(Direction direction, float dAngle) {
+            if (direction == Direction.LEFT) dAngle += getAngle();
+            else if (direction == Direction.RIGHT) dAngle = getAngle() - dAngle;
+            final float goal = alignAngle(dAngle);
+            while (true) {
+                float a = getAngle();
+                float dist = distFromGoal(a, goal);
+                if (dist == 0) break;
+                double power = distBasedPower(dist);
+                if (alignAngle(goal - a) < 0) bot.rotate(Direction.RIGHT, power);
+                else bot.rotate(Direction.LEFT, power);
+            }
+            bot.rotate(Direction.RIGHT, 0);
+            return this;
+        }
+
+        public SensorBasedMovements rotate(Direction direction, float dAngle, double seconds) {
+            if (direction == Direction.LEFT) dAngle += getAngle();
+            else if (direction == Direction.RIGHT) dAngle = getAngle() - dAngle;
+            final float goal = alignAngle(dAngle);
+            bot.rotate(direction, power);
+            bot.sleep(seconds);
+            bot.rotate(direction, 0);
+            while (!mode.isStopRequested()) {
+                float a = getAngle();
+                float dist = distFromGoal(a, goal);
+                if (dist == 0) break;
+                double power = distBasedPower(dist);
+                if (alignAngle(goal - a) < 0) bot.rotate(Direction.RIGHT, power);
+                else bot.rotate(Direction.LEFT, power);
+                sleep(.001);
+            }
+            bot.rotate(Direction.RIGHT, 0);
+            return this;
+        }
+
+        public SensorBasedMovements sleep(double seconds) {
+            Controller.this.sleep(seconds);
+            return this;
+        }
+
+        public SensorBasedMovements armUp(double seconds) {
+            Controller.this.armUp(seconds);
+            return this;
+        }
+        public SensorBasedMovements armDown(double seconds) {
+            Controller.this.armDown(seconds);
+            return this;
+        }
+        public SensorBasedMovements holdArmDown(double seconds) {
+            Controller.this.holdArmDown(seconds);
+            return this;
+        }
+        public SensorBasedMovements closeHand() {
+            Controller.this.closeHand();
+            return this;
+        }
+        public SensorBasedMovements openHand() {
+            Controller.this.openHand();
+            return this;
+        }
+        public SensorBasedMovements setPower(double power) {
+            Controller.this.setPower(power);
+            return this;
+        }
+
+        private float getAngle() {
+            //noinspection ConstantConditions
+            return imu.getAngularOrientation().firstAngle;
+        }
+        private float alignAngle(float angle) {
+            if (angle < -180) return angle + 360;
+            if (angle > 180) return angle - 360;
+            return angle;
+        }
+        private float distFromGoal(float a, float goal) {
+            float dist = Math.abs(goal - a);
+            if (dist <= 180) return dist;
+            return a < goal ? Math.abs(goal - a - 360) : Math.abs(goal - a + 360);
+        }
+        private double distBasedPower(float dist) {
+            return Math.max(getPower() * dist / 180, getPower() / 20);
+        }
     }
 }
