@@ -141,7 +141,7 @@ public class AutoModes {
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.LEFT, .15)
+                    .move(Direction.LEFT, .2)
                     .sleep(.3)
                     .move(Direction.FORWARD, 1.1)
                     .setPower(.3)
@@ -161,12 +161,12 @@ public class AutoModes {
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.2)
                     .holdArmDown(.3)
-                    .move(Direction.REVERSE, 1.4)
                     .setPower(1)
+                    .move(Direction.REVERSE, .4)
                     .rotate(Direction.LEFT, .41)
                     .move(Direction.FORWARD, 3)
                     .armUp(.6)
-                    .move(Direction.REVERSE, .4)
+                    .move(Direction.REVERSE, .5)
                     .sleep(.3);
         }
     }
@@ -271,7 +271,13 @@ public class AutoModes {
         }
     }
 
-
+    @Autonomous
+    public static class StonesRight1 extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            StonesLeft1.go(startSequence(this, true).flip());
+        }
+    }
 
     @Disabled
     @Autonomous
