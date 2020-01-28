@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import java.util.HashMap;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 public class Controller {
 
     /**
@@ -19,6 +19,8 @@ public class Controller {
     private double power;
     private boolean flipped;
     private final HashMap<String, Float> orientationCheckpoints;
+    private TimeBasedMovements timeBasedMovements;
+    private SensorBasedMovements sensorBasedMovements;
 
     public Controller(LinearOpMode mode, boolean useSensors) {
         bot = new BotController(mode.hardwareMap);
@@ -37,11 +39,15 @@ public class Controller {
             imu = null;
             orientationCheckpoints = null;
         }
+        timeBasedMovements = null;
+        sensorBasedMovements = null;
         power = 1;
     }
 
     public Controller flip() {
         flipped = true;
+        timeBasedMovements = null;
+        sensorBasedMovements = null;
         return this;
     }
 
@@ -79,23 +85,26 @@ public class Controller {
     }
 
     public TimeBasedMovements moveByTime() {
-        if (flipped) {
-            return new TimeBasedMovements() {
-                @Override
-                public TimeBasedMovements move(Direction direction, double seconds) {
-                    return direction.isXAxis() ?
-                            super.move(direction.opposite(), seconds) :
-                            super.move(direction, seconds);
-                }
+        if (timeBasedMovements == null) {
+            if (flipped) {
+                timeBasedMovements = new TimeBasedMovements() {
+                    @Override
+                    public TimeBasedMovements move(Direction direction, double seconds) {
+                        return direction.isXAxis() ?
+                                super.move(direction.opposite(), seconds) :
+                                super.move(direction, seconds);
+                    }
 
-                @Override
-                public TimeBasedMovements rotate(Direction direction, double seconds) {
-                    return super.rotate(direction.opposite(), seconds);
-                }
-            };
-        } else {
-            return new TimeBasedMovements();
+                    @Override
+                    public TimeBasedMovements rotate(Direction direction, double seconds) {
+                        return super.rotate(direction.opposite(), seconds);
+                    }
+                };
+            } else {
+                timeBasedMovements = new TimeBasedMovements();
+            }
         }
+        return timeBasedMovements;
     }
     public class TimeBasedMovements {
         public TimeBasedMovements move(Direction direction, double seconds) {
@@ -141,33 +150,40 @@ public class Controller {
             Controller.this.setPower(power);
             return this;
         }
+
+        public SensorBasedMovements moveBySensor() {
+            return Controller.this.moveBySensor();
+        }
     }
 
     public SensorBasedMovements moveBySensor() {
-        if (imu != null) {
-            if (flipped) {
-                return new SensorBasedMovements() {
-                    @Override
-                    public SensorBasedMovements move(Direction direction, double distance) {
-                        return direction.isXAxis() ?
-                                super.move(direction.opposite(), distance) :
-                                super.move(direction, distance);
-                    }
+        if (sensorBasedMovements == null) {
+            if (imu != null) {
+                if (flipped) {
+                    sensorBasedMovements = new SensorBasedMovements() {
+                        @Override
+                        public SensorBasedMovements move(Direction direction, double distance) {
+                            return direction.isXAxis() ?
+                                    super.move(direction.opposite(), distance) :
+                                    super.move(direction, distance);
+                        }
 
-                    @Override
-                    public SensorBasedMovements rotate(Direction direction, float dAngle) {
-                        return super.rotate(direction.opposite(), dAngle);
-                    }
-                };
+                        @Override
+                        public SensorBasedMovements rotate(Direction direction, float dAngle) {
+                            return super.rotate(direction.opposite(), dAngle);
+                        }
+                    };
+                } else {
+                    sensorBasedMovements = new SensorBasedMovements();
+                }
             } else {
-                return new SensorBasedMovements();
+                throw new UnsupportedOperationException(
+                        "useSensors must be true upon initialization of this class " +
+                                "in order to use moveBySensor"
+                );
             }
-        } else {
-            throw new UnsupportedOperationException(
-                    "useSensors must be true upon initialization of this class " +
-                            "in order to use moveBySensor"
-            );
         }
+        return sensorBasedMovements;
     }
     public class SensorBasedMovements {
         public SensorBasedMovements move(Direction direction, double distance) {
@@ -213,6 +229,7 @@ public class Controller {
         }
 
         public SensorBasedMovements gotoOrientation(String name) {
+            //noinspection ConstantConditions
             rotateAbs(orientationCheckpoints.get(name));
             return this;
         }
@@ -245,6 +262,10 @@ public class Controller {
         public SensorBasedMovements setPower(double power) {
             Controller.this.setPower(power);
             return this;
+        }
+
+        public TimeBasedMovements moveByTime() {
+            return Controller.this.moveByTime();
         }
 
         private float getAngle() {
