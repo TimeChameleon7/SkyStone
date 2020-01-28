@@ -193,15 +193,11 @@ public class Controller {
         }
 
         public SensorBasedMovements rotate(Direction direction, float dAngle) {
-            if (direction == Direction.LEFT) dAngle += getAngle();
-            else if (direction == Direction.RIGHT) dAngle = getAngle() - dAngle;
-            return rotateAbs(alignAngle(dAngle));
+            return rotateAbs(absGoal(direction, dAngle));
         }
 
         public SensorBasedMovements rotate(Direction direction, float dAngle, double seconds) {
-            if (direction == Direction.LEFT) dAngle += getAngle();
-            else if (direction == Direction.RIGHT) dAngle = getAngle() - dAngle;
-            final float goal = alignAngle(dAngle);
+            final float goal = absGoal(direction, dAngle);
             bot.rotate(direction, power);
             bot.sleep(seconds);
             bot.rotate(direction, 0);
@@ -227,7 +223,11 @@ public class Controller {
             orientationCheckpoints.put(name, getAngle());
             return this;
         }
-
+        public SensorBasedMovements saveOrientation(String name, Direction direction, float dAngle) {
+            //noinspection ConstantConditions
+            orientationCheckpoints.put(name, absGoal(direction, dAngle));
+            return this;
+        }
         public SensorBasedMovements gotoOrientation(String name) {
             //noinspection ConstantConditions
             rotateAbs(orientationCheckpoints.get(name));
@@ -268,6 +268,11 @@ public class Controller {
             return Controller.this.moveByTime();
         }
 
+        private float absGoal(Direction direction, float dAngle) {
+            if (direction == Direction.LEFT) return alignAngle(dAngle + getAngle());
+            else if (direction == Direction.RIGHT) return alignAngle(getAngle() - dAngle);
+            else throw new IllegalArgumentException("direction must be left or right");
+        }
         private float getAngle() {
             //noinspection ConstantConditions
             return imu.getAngularOrientation().firstAngle;
