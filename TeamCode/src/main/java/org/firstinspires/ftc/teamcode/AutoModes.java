@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public class AutoModes {
@@ -22,6 +23,7 @@ public class AutoModes {
         return controller;
     }
 
+    @Disabled
     @Autonomous
     public static class Test extends LinearOpMode {
 
@@ -67,61 +69,6 @@ public class AutoModes {
         @Override
         public void runOpMode() throws InterruptedException {
             FoundationLeft.go(startSequence(this, false).flip());
-        }
-    }
-
-    @Autonomous
-    public static class StonesRight extends LinearOpMode {
-        @Override
-        public void runOpMode() throws InterruptedException {
-            Controller controller = startSequence(this, false);
-
-            controller.flip().moveByTime()
-                    .move(Direction.FORWARD, .2)
-                    .sleep(.3)
-                    .move(Direction.LEFT, .1)
-                    .sleep(.3)
-                    .move(Direction.FORWARD, 1.2)
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1)
-                    .holdArmDown(.5)
-                    .move(Direction.REVERSE, .8)
-                    .setPower(1)
-                    .rotate(Direction.LEFT, .41)
-                    .sleep(.3)
-                    .move(Direction.FORWARD, 2)
-                    .armUp(.7)
-                    //first stone is placed
-                    .move(Direction.LEFT, .3)
-                    .sleep(.3)
-                    .move(Direction.REVERSE, .5)
-                    .armDown(.3)
-                    .move(Direction.REVERSE, 2)
-                    .armUp(.7)
-                    .rotate(Direction.RIGHT, .42)
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1.45)
-                    .holdArmDown(.5)
-                    .sleep(.3)
-                    .move(Direction.REVERSE, .5)
-                    .setPower(1)
-                    .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 2.3)
-                    .armUp(.7)
-                    .move(Direction.REVERSE, .5)
-                    //second stone is placed
-                    .armDown(.2)
-                    //.rotate(Direction.RIGHT, .01)
-                    .move(Direction.REVERSE, 2.1)
-                    .armUp(.5)
-                    .rotate(Direction.RIGHT, .41)
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1)
-                    .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1)
-                    .setPower(1)
-                    .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 2.3);
         }
     }
 
@@ -172,54 +119,25 @@ public class AutoModes {
     public static class StonesLeft2 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            Controller controller = startSequence(this, false);
+            go(startSequence(this, false));
+        }
 
+        static void go(Controller controller) {
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.RIGHT, .3)
+                    .move(Direction.RIGHT, .2)
                     .sleep(.3)
                     .move(Direction.FORWARD, 1.5)
                     .setPower(.3)
-                    .move(Direction.FORWARD, 1.4)
+                    .move(Direction.FORWARD, 1.2)
                     .holdArmDown(.5)
                     .move(Direction.REVERSE, 1.7)
                     .setPower(1)
                     .rotate(Direction.LEFT, .45)
                     .sleep(.3)
                     .move(Direction.FORWARD, 2.1)
-                    .armUp(.7)
-                    //first stone is placed
-                    .move(Direction.LEFT, .3)
-                    .sleep(.3)
-                    .move(Direction.REVERSE, .5)
-                    .armDown(.3)
-                    .move(Direction.REVERSE, 2)
-                    .armUp(.7)
-                    .rotate(Direction.RIGHT, .42)
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1.45)
-                    .holdArmDown(.5)
-                    .sleep(.3)
-                    .move(Direction.REVERSE, .5)
-                    .setPower(1)
-                    .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 2.3)
-                    .armUp(.7)
-                    .move(Direction.REVERSE, .5)
-                    //second stone is placed
-                    .armDown(.2)
-                    //.rotate(Direction.RIGHT, .01)
-                    .move(Direction.REVERSE, 2.1)
-                    .armUp(.5)
-                    .rotate(Direction.RIGHT, .41)
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1)
-                    .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1)
-                    .setPower(1)
-                    .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 2.3);
+                    .armUp(.7);
         }
     }
 
@@ -273,6 +191,23 @@ public class AutoModes {
         }
     }
 
+    @Autonomous
+    public static class StonesRight2 extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            StonesLeft2.go(startSequence(this, true).flip());
+        }
+    }
+
+    @Autonomous
+    public static class StonesRight3 extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            StonesLeft3.go(startSequence(this, true).flip());
+        }
+    }
+
+    @Disabled
     @Autonomous
     public static class SensorTest extends LinearOpMode {
         @Override
