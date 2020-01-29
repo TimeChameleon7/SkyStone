@@ -4,18 +4,30 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.Direction;
-
 /**
  * Low Level Bot Controller, uses a bot's hardware for basic movement functionality, and
  * makes that functionality easily understandable.
  */
 @SuppressWarnings("WeakerAccess")
 public class BotController {
+    /**
+     * The bot's motor used to move the robot along the ground.
+     */
     private final DcMotor[] motors;
+    /**
+     * The Servo that, when powered, moves the arm up or down.
+     */
     private final Servo arm;
+    /**
+     * The Servo that, when powered, opens and closes the hand.
+     */
     private final Servo hand;
 
+    /**
+     * Sets all fields as well as sets the motors into the brake behavior.
+     *
+     * @param map the map to retrieve the bot's hardware from.
+     */
     public BotController(HardwareMap map) {
         motors = new DcMotor[4];
         motors[0] = get(map, "one");
@@ -27,6 +39,9 @@ public class BotController {
         hand = get(map, "servoOne");
     }
 
+    /**
+     * map.get helper.
+     */
     @SuppressWarnings("unchecked")
     static <T> T get(HardwareMap map, String name) {
         return (T) map.get(name);
@@ -40,22 +55,43 @@ public class BotController {
         }
     }
 
+    /**
+     * Moves the arm up for {@code seconds} seconds.
+     *
+     * @param seconds The length of time to move the arm upward for.
+     */
     public void armUp(double seconds) {
         arm.setPosition(0);
         sleepThenBrake(seconds, arm);
     }
+    /**
+     * Moves the arm down for {@code seconds} seconds.
+     *
+     * @param seconds The length of time to move the arm downward for.
+     */
     public void armDown(double seconds) {
         arm.setPosition(1);
         sleepThenBrake(seconds, arm);
     }
+    /**
+     * Moves the arm down continually, the method will return after {@code seconds} seconds.
+     *
+     * @param seconds The amount of time to wait before returning.
+     */
     public void holdArmDown(double seconds) {
         arm.setPosition(1);
         sleep(seconds);
     }
+    /**
+     * Closes the hand.
+     */
     public void closeHand() {
         hand.setPosition(0);
         sleepThenBrake(1, hand);
     }
+    /**
+     * Opens the hand.
+     */
     public void openHand() {
         hand.setPosition(1);
         sleepThenBrake(1, hand);
