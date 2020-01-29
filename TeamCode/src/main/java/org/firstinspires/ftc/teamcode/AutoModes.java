@@ -7,10 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
-import java.util.Arrays;
 
 public class AutoModes {
     private AutoModes(){}
@@ -279,7 +276,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous
     public static class SensorTest extends LinearOpMode {
         @Override
@@ -289,27 +285,35 @@ public class AutoModes {
             SensorManager manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
             Sensor sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             if (sensor == null) {
-                updateStatus("Gyro is null");
+                telemetry.addData("Status", "sensor is null");
+                telemetry.update();
+                sleep(2000);
+            } else {
+                //todo attempt smoothing
+                final float[] prevValues = new float[3];
+                SensorEventListener listener = new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent event) {
+                        float[] delta = new float[3];
+                        for (int i = 0; i < 3; i++) {
+                            delta[i] = event.values[i] - prevValues[i];
+                        }
+                        System.arraycopy(event.values, 0, prevValues, 0, 3);
+                        telemetry.addData("X", "%+f", delta[0])
+                                .addData("Y", "%+f", delta[1])
+                                .addData("Z", "%+f", delta[2]);
+                        telemetry.update();
+                    }
+
+                    @Override
+                    public void onAccuracyChanged(Sensor sensor, int i) {
+                    }
+                };
+                manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+                c.moveByTime()
+                        .sleep(10);
+                manager.unregisterListener(listener);
             }
-            SensorEventListener listener = new SensorEventListener() {
-                @Override
-                public void onSensorChanged(SensorEvent event) {
-                    updateStatus(Arrays.toString(event.values));
-                }
-
-                @Override
-                public void onAccuracyChanged(Sensor sensor, int i) {}
-            };
-            manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
-            c.moveByTime()
-                    .sleep(10);
-            manager.unregisterListener(listener);
-        }
-
-        private void updateStatus(Object o) {
-            telemetry.addData("Status", o);
-            telemetry.update();
-            sleep(1000);
         }
     }
 }
