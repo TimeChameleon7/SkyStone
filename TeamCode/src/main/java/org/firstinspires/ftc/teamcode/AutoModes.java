@@ -227,14 +227,17 @@ public class AutoModes {
     public static class StonesLeft3 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            go(startSequence(this, false));
+            go(startSequence(this, true));
         }
 
         static void go(Controller controller) {
+            controller.moveBySensor().saveOrientation("start");
+
+
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.RIGHT, .7)
+                    .move(Direction.RIGHT, .65)
                     .sleep(.3)
                     .move(Direction.FORWARD, 1.4)
                     .setPower(.3)
@@ -243,28 +246,22 @@ public class AutoModes {
                     .move(Direction.REVERSE, 1.7)
                     .setPower(1)
                     .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 3.0);
-                  /*  .armUp(.7)
+                    .move(Direction.FORWARD, 2.6)
+                    .armUp(.7)
                     .move(Direction.REVERSE, .6)
                     .armDown(.3)
                     .move(Direction.REVERSE, 1.5)
                     .sleep(.3)
-                    .rotate(Direction.RIGHT, .01)
                     .move(Direction.REVERSE, 1.5)
                     .armUp(.7)
-                    .rotate(Direction.RIGHT, .41)
+                    .moveBySensor().gotoOrientation("start").moveByTime()
                     .setPower(.3)
-                    .move(Direction.FORWARD, 1.2)
+                    .move(Direction.FORWARD, 1.35)
                     .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1.9)
                     .setPower(1)
+                    .move(Direction.REVERSE, .5)
                     .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 3.6)
-                    .armUp(.7)
-                    .move(Direction.REVERSE, .6)
-                    .armDown(.3);
-
-                    */
+                    .move(Direction.FORWARD, 3.2);
         }
     }
 
