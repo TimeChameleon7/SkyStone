@@ -230,8 +230,13 @@ public class Controller {
         }
         public SensorBasedMovements gotoOrientation(String name) {
             //noinspection ConstantConditions
-            rotateAbs(orientationCheckpoints.get(name));
-            return this;
+            return rotateAbs(orientationCheckpoints.get(name));
+        }
+        public SensorBasedMovements gotoOrientation(Direction direction, double seconds, String name) {
+            bot.rotate(direction, power);
+            bot.sleep(seconds);
+            bot.rotate(direction, 0);
+            return rotateAbs(orientationCheckpoints.get(name));
         }
 
         public SensorBasedMovements sleep(double seconds) {

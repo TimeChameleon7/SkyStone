@@ -80,37 +80,42 @@ public class AutoModes {
         }
 
         static void go(Controller controller) {
-            controller.moveBySensor().saveOrientation("start");
+            controller.moveBySensor()
+                    .saveOrientation("towards blocks")
+                    .saveOrientation("towards bridge", Direction.LEFT, 89);
+            //89 instead of 90 to attempt to fix tilt on long reverse time
 
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.LEFT, .2)
+                    .move(Direction.LEFT, .18)
                     .sleep(.3)
-                    .move(Direction.FORWARD, 1.1)
+                    .moveBySensor().gotoOrientation("towards blocks").moveByTime()
+                    .move(Direction.FORWARD, 1.3)
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.3)
                     .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1.4)
                     .setPower(1)
+                    .move(Direction.REVERSE, .6)
                     .rotate(Direction.LEFT, .41)
                     .sleep(.3)
                     .move(Direction.FORWARD, 2)
                     .armUp(.7)
+                    .moveBySensor().gotoOrientation("towards bridge").moveByTime()
                     .move(Direction.REVERSE, .6)
                     .armDown(.3)
-                    .move(Direction.REVERSE, 2.4)
+                    .move(Direction.REVERSE, 2.6)
                     .armUp(.7)
-                    .moveBySensor().gotoOrientation("start").moveByTime()
+                    .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.2)
                     .holdArmDown(.3)
+                    .move(Direction.REVERSE, 1.4)
                     .setPower(1)
-                    .move(Direction.REVERSE, .4)
                     .rotate(Direction.LEFT, .41)
                     .move(Direction.FORWARD, 3)
                     .armUp(.6)
-                    .move(Direction.REVERSE, .5)
+                    .move(Direction.REVERSE, .4)
                     .sleep(.3);
         }
     }
@@ -119,25 +124,43 @@ public class AutoModes {
     public static class StonesLeft2 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            go(startSequence(this, false));
+            go(startSequence(this, true));
         }
 
         static void go(Controller controller) {
+            controller.moveBySensor().saveOrientation("towards blocks");
+
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.RIGHT, .2)
+                    .move(Direction.RIGHT, .26)
                     .sleep(.3)
-                    .move(Direction.FORWARD, 1.5)
+                    .moveBySensor().gotoOrientation("towards blocks").moveByTime()
+                    .move(Direction.FORWARD, 1.3)
                     .setPower(.3)
-                    .move(Direction.FORWARD, 1.2)
+                    .move(Direction.FORWARD, 1.3)
                     .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1.7)
+                    .move(Direction.REVERSE, 1.4)
                     .setPower(1)
-                    .rotate(Direction.LEFT, .45)
+                    .rotate(Direction.LEFT, .41)
                     .sleep(.3)
                     .move(Direction.FORWARD, 2.1)
-                    .armUp(.7);
+                    .armUp(.7)
+                    //first stone is placed
+                    .move(Direction.REVERSE, .5)
+                    .armDown(.3)
+                    .move(Direction.REVERSE, 2.8)
+                    .armUp(.7)
+                    .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
+                    .setPower(.3)
+                    .move(Direction.FORWARD, 1)
+                    .holdArmDown(.7)
+                    .setPower(1)
+                    .move(Direction.REVERSE, .4)
+                    .rotate(Direction.LEFT, .41)
+                    .move(Direction.FORWARD, 3.5)
+                    .armUp(.5)
+                    .move(Direction.REVERSE, .35);
         }
     }
 
@@ -149,7 +172,7 @@ public class AutoModes {
         }
 
         static void go(Controller controller) {
-            controller.moveBySensor().saveOrientation("start");
+            controller.moveBySensor().saveOrientation("towards block");
 
 
             controller.moveByTime()
@@ -157,6 +180,7 @@ public class AutoModes {
                     .sleep(.3)
                     .move(Direction.RIGHT, .65)
                     .sleep(.3)
+                    .moveBySensor().gotoOrientation("towards block").moveByTime()
                     .move(Direction.FORWARD, 1.4)
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.2)
@@ -172,7 +196,7 @@ public class AutoModes {
                     .sleep(.3)
                     .move(Direction.REVERSE, 1.5)
                     .armUp(.7)
-                    .moveBySensor().gotoOrientation("start").moveByTime()
+                    .moveBySensor().gotoOrientation(Direction.RIGHT, .41,"towards block").moveByTime()
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.35)
                     .holdArmDown(.5)
