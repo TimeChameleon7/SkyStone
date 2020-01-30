@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -305,8 +306,12 @@ public class AutoModes {
                         telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
                         telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
                                 recognition.getLeft(), recognition.getTop());
-                        telemetry.addData(String.format("  right,bottom (%d)", i++), "%.03f , %.03f",
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                                 recognition.getRight(), recognition.getBottom());
+                        telemetry.addData("  confidence", recognition.getConfidence());
+                        telemetry.addData("  dimensions", "%d %d",
+                                recognition.getImageWidth(), recognition.getImageHeight());
+                        telemetry.addData("  angle", "%.3f", recognition.estimateAngleToObject(AngleUnit.DEGREES));
                         //todo place stones in the possible positions and write them down, that can be used to figure out which roll we're on
                     }
                     telemetry.update();
@@ -326,7 +331,7 @@ public class AutoModes {
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfodParameters.minimumConfidence = 0.8;
+            tfodParameters.minimumConfidence = 0.7;
             TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
             tfod.loadModelFromAsset("Skystone.tflite", "Stone", "Skystone");
             tfod.activate();
