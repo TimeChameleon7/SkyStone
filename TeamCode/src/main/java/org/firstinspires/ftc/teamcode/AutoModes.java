@@ -21,7 +21,7 @@ import java.util.List;
 
 public class AutoModes {
     private AutoModes(){}
-
+    //todo diagrams
     private static Controller startSequence(LinearOpMode mode, boolean useSensors) {
         Controller controller = new Controller(mode, useSensors);
         mode.telemetry.addData("Status", "Initialized");
@@ -30,6 +30,25 @@ public class AutoModes {
         mode.telemetry.addData("Status", "Started");
         mode.telemetry.update();
         return controller;
+    }
+
+    private static TFObjectDetector getDetector(LinearOpMode mode) {
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        parameters.vuforiaLicenseKey = "AW7zmbr/////AAABma7Jq+OAOU1CuaonIFUo0/xJJUyI2A02nsbVBSLuw" +
+                "jlJM3+Po0DLAtKsPIaRZkLN0rYBcSHwhv3r3NmFOMqvOx7Wa88CX+uDNWQhrYOAc27kw3usgqIGWmHpO" +
+                "/1onWmWEv0u6hQX/69KUsN/51vAKJrrd58/KOAlSVlLsQH4K5uI0qT0EAVh1FYCd46wG7pBlTdLcDH1Q" +
+                "YzSyeDvPklhNEFMRvUEBpOd9eF1gMunhIagFnSBjA1c89ylVx3RDAlsirW3N97jtzd/Eq3Sr0aznz+7G" +
+                "ar5OtxRUtuoCBMfkAfwkgqtHppySXbRcMGaaC+VtLbeNWWjWTWBczIcoqVH1DqPG5NDn/sP+X9hMV7q+" +
+                "MUA";
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        VuforiaLocalizer vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        int tfodMonitorViewId = mode.hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", mode.hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minimumConfidence = 0.5;
+        TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset("Skystone.tflite", "Stone", "Skystone");
+        return tfod;
     }
 
     @Disabled
@@ -81,13 +100,26 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous
     public static class StonesLeftTensor extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
+            TFObjectDetector detector = getDetector(this);
             Controller controller = startSequence(this, true);
-            //todo use TensorFlow to check the location of the blocks and get which dice roll we're on.
+            detector.activate();
+            while (opModeIsActive()) {
+                List<Recognition> recognitions = detector.getUpdatedRecognitions();
+                if (recognitions!=null) {
+                    for (Recognition recognition : recognitions) {
+                        //if (recognition.getLabel().equals("Stone")) continue;
+                        telemetry.addData("Label", "\"%s\"", recognition.getLabel());
+                        telemetry.addData("  Confi", recognition.getConfidence());
+                        telemetry.addData("  Angle", recognition.estimateAngleToObject(AngleUnit.DEGREES));
+                    }
+                    telemetry.update();
+                }
+            }
+            detector.shutdown();
         }
     }
 
@@ -276,6 +308,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous
     public static class TensorFlow extends LinearOpMode {
 
@@ -312,7 +345,6 @@ public class AutoModes {
                         telemetry.addData("  dimensions", "%d %d",
                                 recognition.getImageWidth(), recognition.getImageHeight());
                         telemetry.addData("  angle", "%.3f", recognition.estimateAngleToObject(AngleUnit.DEGREES));
-                        //todo place stones in the possible positions and write them down, that can be used to figure out which roll we're on
                     }
                     telemetry.update();
                 }
@@ -323,7 +355,7 @@ public class AutoModes {
         private VuforiaLocalizer initVuforia() {
             VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
             parameters.vuforiaLicenseKey = VUFORIA_KEY;
-            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
+            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
             return ClassFactory.getInstance().createVuforia(parameters);
         }
 
@@ -331,7 +363,7 @@ public class AutoModes {
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfodParameters.minimumConfidence = 0.7;
+            tfodParameters.minimumConfidence = 0.5;
             TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
             tfod.loadModelFromAsset("Skystone.tflite", "Stone", "Skystone");
             tfod.activate();
