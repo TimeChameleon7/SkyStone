@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -9,6 +10,13 @@ import android.hardware.SensorManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
 
 public class AutoModes {
     private AutoModes(){}
@@ -273,6 +281,66 @@ public class AutoModes {
                         .sleep(10);
                 manager.unregisterListener(listener);
             }
+        }
+    }
+
+    @Disabled
+    @Autonomous
+    public static class TensorFlow extends LinearOpMode {
+
+        @SuppressWarnings("SpellCheckingInspection")
+        private static final String VUFORIA_KEY =
+                "AW7zmbr/////AAABma7Jq+OAOU1CuaonIFUo0/xJJUyI2A02nsbVBSLuwjlJM3+Po0DLAtKsPIaRZkLN0rYB" +
+                        "cSHwhv3r3NmFOMqvOx7Wa88CX+uDNWQhrYOAc27kw3usgqIGWmHpO/1onWmWEv0u6hQX/69KUsN/" +
+                        "51vAKJrrd58/KOAlSVlLsQH4K5uI0qT0EAVh1FYCd46wG7pBlTdLcDH1QYzSyeDvPklhNEFMRvUE" +
+                        "BpOd9eF1gMunhIagFnSBjA1c89ylVx3RDAlsirW3N97jtzd/Eq3Sr0aznz+7Gar5OtxRUtuoCBMf" +
+                        "kAfwkgqtHppySXbRcMGaaC+VtLbeNWWjWTWBczIcoqVH1DqPG5NDn/sP+X9hMV7q+MUA";
+
+        @SuppressLint("DefaultLocale")
+        @Override
+        public void runOpMode() {
+            VuforiaLocalizer vuforia = initVuforia();
+            TFObjectDetector detector = initDetector(vuforia);
+
+            telemetry.addData(">", "Press Play to start op mode");
+            telemetry.update();
+            waitForStart();
+            while (opModeIsActive()) {
+                List<Recognition> updatedRecognitions = detector.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    // step through the list of recognitions and display boundary info.
+                    int i = 0;
+                    for (Recognition recognition : updatedRecognitions) {
+                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                recognition.getLeft(), recognition.getTop());
+                        telemetry.addData(String.format("  right,bottom (%d)", i++), "%.03f , %.03f",
+                                recognition.getRight(), recognition.getBottom());
+                        //todo place stones in the possible positions and write them down, that can be used to figure out which roll we're on
+                    }
+                    telemetry.update();
+                }
+            }
+            detector.shutdown();
+        }
+
+        private VuforiaLocalizer initVuforia() {
+            VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+            parameters.vuforiaLicenseKey = VUFORIA_KEY;
+            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
+            return ClassFactory.getInstance().createVuforia(parameters);
+        }
+
+        private TFObjectDetector initDetector(VuforiaLocalizer vuforia) {
+            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                    "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+            tfodParameters.minimumConfidence = 0.8;
+            TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+            tfod.loadModelFromAsset("Skystone.tflite", "Stone", "Skystone");
+            tfod.activate();
+            return tfod;
         }
     }
 }
