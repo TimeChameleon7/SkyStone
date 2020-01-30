@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import java.util.Arrays;
-
 public class AutoModes {
     private AutoModes(){}
 
@@ -25,6 +23,7 @@ public class AutoModes {
         return controller;
     }
 
+    @Disabled
     @Autonomous
     public static class Test extends LinearOpMode {
 
@@ -74,61 +73,6 @@ public class AutoModes {
     }
 
     @Autonomous
-    public static class StonesRight extends LinearOpMode {
-        @Override
-        public void runOpMode() throws InterruptedException {
-            Controller controller = startSequence(this, false);
-
-            controller.flip().moveByTime()
-                    .move(Direction.FORWARD, .2)
-                    .sleep(.3)
-                    .move(Direction.LEFT, .1)
-                    .sleep(.3)
-                    .move(Direction.FORWARD, 1.2)
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1)
-                    .holdArmDown(.5)
-                    .move(Direction.REVERSE, .8)
-                    .setPower(1)
-                    .rotate(Direction.LEFT, .41)
-                    .sleep(.3)
-                    .move(Direction.FORWARD, 2)
-                    .armUp(.7)
-                    //first stone is placed
-                    .move(Direction.LEFT, .3)
-                    .sleep(.3)
-                    .move(Direction.REVERSE, .5)
-                    .armDown(.3)
-                    .move(Direction.REVERSE, 2)
-                    .armUp(.7)
-                    .rotate(Direction.RIGHT, .42)
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1.45)
-                    .holdArmDown(.5)
-                    .sleep(.3)
-                    .move(Direction.REVERSE, .5)
-                    .setPower(1)
-                    .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 2.3)
-                    .armUp(.7)
-                    .move(Direction.REVERSE, .5)
-                    //second stone is placed
-                    .armDown(.2)
-                    //.rotate(Direction.RIGHT, .01)
-                    .move(Direction.REVERSE, 2.1)
-                    .armUp(.5)
-                    .rotate(Direction.RIGHT, .41)
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1)
-                    .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1)
-                    .setPower(1)
-                    .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 2.3);
-        }
-    }
-
-    @Autonomous
     public static class StonesLeft1 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -136,37 +80,42 @@ public class AutoModes {
         }
 
         static void go(Controller controller) {
-            controller.moveBySensor().saveOrientation("start");
+            controller.moveBySensor()
+                    .saveOrientation("towards blocks")
+                    .saveOrientation("towards bridge", Direction.LEFT, 89);
+            //89 instead of 90 to attempt to fix tilt on long reverse time
 
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.LEFT, .2)
+                    .move(Direction.LEFT, .18)
                     .sleep(.3)
-                    .move(Direction.FORWARD, 1.1)
+                    .moveBySensor().gotoOrientation("towards blocks").moveByTime()
+                    .move(Direction.FORWARD, 1.3)
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.3)
                     .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1.4)
                     .setPower(1)
+                    .move(Direction.REVERSE, .6)
                     .rotate(Direction.LEFT, .41)
                     .sleep(.3)
                     .move(Direction.FORWARD, 2)
                     .armUp(.7)
+                    .moveBySensor().gotoOrientation("towards bridge").moveByTime()
                     .move(Direction.REVERSE, .6)
                     .armDown(.3)
-                    .move(Direction.REVERSE, 2.4)
+                    .move(Direction.REVERSE, 2.6)
                     .armUp(.7)
-                    .moveBySensor().gotoOrientation("start").moveByTime()
+                    .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.2)
                     .holdArmDown(.3)
+                    .move(Direction.REVERSE, 1.4)
                     .setPower(1)
-                    .move(Direction.REVERSE, .4)
                     .rotate(Direction.LEFT, .41)
                     .move(Direction.FORWARD, 3)
                     .armUp(.6)
-                    .move(Direction.REVERSE, .5)
+                    .move(Direction.REVERSE, .4)
                     .sleep(.3);
         }
     }
@@ -175,54 +124,45 @@ public class AutoModes {
     public static class StonesLeft2 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            Controller controller = startSequence(this, false);
+            go(startSequence(this, true));
+        }
+
+        static void go(Controller controller) {
+            controller.moveBySensor()
+                    .saveOrientation("towards blocks")
+                    .saveOrientation("towards bridge", Direction.LEFT, 89);
 
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.RIGHT, .3)
+                    .move(Direction.RIGHT, .26)
                     .sleep(.3)
-                    .move(Direction.FORWARD, 1.5)
+                    .move(Direction.FORWARD, 1.3)
                     .setPower(.3)
-                    .move(Direction.FORWARD, 1.4)
-                    .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1.7)
+                    .move(Direction.FORWARD, 1.3)
+                    .holdArmDown(.7)
+                    .move(Direction.REVERSE, 1.4)
                     .setPower(1)
-                    .rotate(Direction.LEFT, .45)
+                    .rotate(Direction.LEFT, .41)
                     .sleep(.3)
                     .move(Direction.FORWARD, 2.1)
                     .armUp(.7)
+                    .moveBySensor().gotoOrientation("towards bridge").moveByTime()
                     //first stone is placed
-                    .move(Direction.LEFT, .3)
-                    .sleep(.3)
                     .move(Direction.REVERSE, .5)
                     .armDown(.3)
-                    .move(Direction.REVERSE, 2)
+                    .move(Direction.REVERSE, 2.8)
                     .armUp(.7)
-                    .rotate(Direction.RIGHT, .42)
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1.45)
-                    .holdArmDown(.5)
-                    .sleep(.3)
-                    .move(Direction.REVERSE, .5)
-                    .setPower(1)
-                    .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 2.3)
-                    .armUp(.7)
-                    .move(Direction.REVERSE, .5)
-                    //second stone is placed
-                    .armDown(.2)
-                    //.rotate(Direction.RIGHT, .01)
-                    .move(Direction.REVERSE, 2.1)
-                    .armUp(.5)
-                    .rotate(Direction.RIGHT, .41)
+                    .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
                     .setPower(.3)
                     .move(Direction.FORWARD, 1)
-                    .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1)
+                    .holdArmDown(.7)
                     .setPower(1)
+                    .move(Direction.REVERSE, .4)
                     .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 2.3);
+                    .move(Direction.FORWARD, 3.5)
+                    .armUp(.5)
+                    .move(Direction.REVERSE, .35);
         }
     }
 
@@ -230,14 +170,19 @@ public class AutoModes {
     public static class StonesLeft3 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            go(startSequence(this, false));
+            go(startSequence(this, true));
         }
 
         static void go(Controller controller) {
+            controller.moveBySensor()
+                    .saveOrientation("towards blocks")
+                    .saveOrientation("towards bridge", Direction.LEFT, 89);
+
+
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.RIGHT, .7)
+                    .move(Direction.RIGHT, .65)
                     .sleep(.3)
                     .move(Direction.FORWARD, 1.4)
                     .setPower(.3)
@@ -246,28 +191,22 @@ public class AutoModes {
                     .move(Direction.REVERSE, 1.7)
                     .setPower(1)
                     .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 3.0);
-                  /*  .armUp(.7)
+                    .move(Direction.FORWARD, 2.6)
+                    .armUp(.7)
                     .move(Direction.REVERSE, .6)
                     .armDown(.3)
                     .move(Direction.REVERSE, 1.5)
                     .sleep(.3)
-                    .rotate(Direction.RIGHT, .01)
                     .move(Direction.REVERSE, 1.5)
                     .armUp(.7)
-                    .rotate(Direction.RIGHT, .41)
+                    .moveBySensor().gotoOrientation(Direction.RIGHT, .41,"towards blocks").moveByTime()
                     .setPower(.3)
-                    .move(Direction.FORWARD, 1.2)
+                    .move(Direction.FORWARD, 1.35)
                     .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1.9)
                     .setPower(1)
+                    .move(Direction.REVERSE, .5)
                     .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 3.6)
-                    .armUp(.7)
-                    .move(Direction.REVERSE, .6)
-                    .armDown(.3);
-
-                    */
+                    .move(Direction.FORWARD, 3.2);
         }
     }
 
@@ -276,6 +215,22 @@ public class AutoModes {
         @Override
         public void runOpMode() throws InterruptedException {
             StonesLeft1.go(startSequence(this, true).flip());
+        }
+    }
+
+    @Autonomous
+    public static class StonesRight2 extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            StonesLeft2.go(startSequence(this, true).flip());
+        }
+    }
+
+    @Autonomous
+    public static class StonesRight3 extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            StonesLeft3.go(startSequence(this, true).flip());
         }
     }
 
@@ -289,27 +244,35 @@ public class AutoModes {
             SensorManager manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
             Sensor sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             if (sensor == null) {
-                updateStatus("Gyro is null");
+                telemetry.addData("Status", "sensor is null");
+                telemetry.update();
+                sleep(2000);
+            } else {
+                //todo attempt smoothing
+                final float[] prevValues = new float[3];
+                SensorEventListener listener = new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent event) {
+                        float[] delta = new float[3];
+                        for (int i = 0; i < 3; i++) {
+                            delta[i] = event.values[i] - prevValues[i];
+                        }
+                        System.arraycopy(event.values, 0, prevValues, 0, 3);
+                        telemetry.addData("X", "%+f", delta[0])
+                                .addData("Y", "%+f", delta[1])
+                                .addData("Z", "%+f", delta[2]);
+                        telemetry.update();
+                    }
+
+                    @Override
+                    public void onAccuracyChanged(Sensor sensor, int i) {
+                    }
+                };
+                manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+                c.moveByTime()
+                        .sleep(10);
+                manager.unregisterListener(listener);
             }
-            SensorEventListener listener = new SensorEventListener() {
-                @Override
-                public void onSensorChanged(SensorEvent event) {
-                    updateStatus(Arrays.toString(event.values));
-                }
-
-                @Override
-                public void onAccuracyChanged(Sensor sensor, int i) {}
-            };
-            manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
-            c.moveByTime()
-                    .sleep(10);
-            manager.unregisterListener(listener);
-        }
-
-        private void updateStatus(Object o) {
-            telemetry.addData("Status", o);
-            telemetry.update();
-            sleep(1000);
         }
     }
 }
