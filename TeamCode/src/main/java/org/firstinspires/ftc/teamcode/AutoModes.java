@@ -80,6 +80,27 @@ public class AutoModes {
         }
     }
 
+    @Disabled
+    @Autonomous
+    public static class StonesLeftTensor extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            Controller controller = startSequence(this, true);
+            //todo use TensorFlow to check the location of the blocks and get which dice roll we're on.
+        }
+    }
+
+    @Disabled
+    @Autonomous
+    public static class StonesRightTensor extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            Controller controller = startSequence(this, true);
+            //todo use TensorFlow to check the location of the blocks and get which dice roll we're on.
+        }
+
+    }
+
     @Autonomous
     public static class StonesLeft1 extends LinearOpMode {
         @Override
@@ -222,7 +243,11 @@ public class AutoModes {
     public static class StonesRight1 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            StonesLeft1.go(startSequence(this, true).flip());
+            go(startSequence(this, true));
+        }
+
+        static void go(Controller controller) {
+            StonesLeft1.go(controller.flip());
         }
     }
 
@@ -230,7 +255,11 @@ public class AutoModes {
     public static class StonesRight2 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            StonesLeft2.go(startSequence(this, true).flip());
+            go(startSequence(this, true));
+        }
+
+        static void go(Controller controller) {
+            StonesLeft2.go(controller.flip());
         }
     }
 
@@ -238,53 +267,14 @@ public class AutoModes {
     public static class StonesRight3 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            StonesLeft3.go(startSequence(this, true).flip());
+            go(startSequence(this, true));
+        }
+
+        static void go(Controller controller) {
+            StonesLeft3.go(controller.flip());
         }
     }
 
-    @Disabled
-    @Autonomous
-    public static class SensorTest extends LinearOpMode {
-        @Override
-        public void runOpMode() {
-            Controller c = startSequence(this, false);
-
-            SensorManager manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-            Sensor sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            if (sensor == null) {
-                telemetry.addData("Status", "sensor is null");
-                telemetry.update();
-                sleep(2000);
-            } else {
-                //todo attempt smoothing
-                final float[] prevValues = new float[3];
-                SensorEventListener listener = new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        float[] delta = new float[3];
-                        for (int i = 0; i < 3; i++) {
-                            delta[i] = event.values[i] - prevValues[i];
-                        }
-                        System.arraycopy(event.values, 0, prevValues, 0, 3);
-                        telemetry.addData("X", "%+f", delta[0])
-                                .addData("Y", "%+f", delta[1])
-                                .addData("Z", "%+f", delta[2]);
-                        telemetry.update();
-                    }
-
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int i) {
-                    }
-                };
-                manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
-                c.moveByTime()
-                        .sleep(10);
-                manager.unregisterListener(listener);
-            }
-        }
-    }
-
-    @Disabled
     @Autonomous
     public static class TensorFlow extends LinearOpMode {
 
@@ -341,6 +331,49 @@ public class AutoModes {
             tfod.loadModelFromAsset("Skystone.tflite", "Stone", "Skystone");
             tfod.activate();
             return tfod;
+        }
+
+    }
+
+    @Disabled
+    @Autonomous
+    public static class SensorTest extends LinearOpMode {
+        @Override
+        public void runOpMode() {
+            Controller c = startSequence(this, false);
+
+            SensorManager manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
+            Sensor sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            if (sensor == null) {
+                telemetry.addData("Status", "sensor is null");
+                telemetry.update();
+                sleep(2000);
+            } else {
+                //todo attempt smoothing
+                final float[] prevValues = new float[3];
+                SensorEventListener listener = new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent event) {
+                        float[] delta = new float[3];
+                        for (int i = 0; i < 3; i++) {
+                            delta[i] = event.values[i] - prevValues[i];
+                        }
+                        System.arraycopy(event.values, 0, prevValues, 0, 3);
+                        telemetry.addData("X", "%+f", delta[0])
+                                .addData("Y", "%+f", delta[1])
+                                .addData("Z", "%+f", delta[2]);
+                        telemetry.update();
+                    }
+
+                    @Override
+                    public void onAccuracyChanged(Sensor sensor, int i) {
+                    }
+                };
+                manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+                c.moveByTime()
+                        .sleep(10);
+                manager.unregisterListener(listener);
+            }
         }
     }
 }
