@@ -53,6 +53,30 @@ public class AutoModes {
         return tfod;
     }
 
+    private static double getAvgAngle(TFObjectDetector detector, LinearOpMode mode) {
+        detector.activate();
+        ArrayList<Recognition> recognitions = new ArrayList<>();
+        long start = System.currentTimeMillis();
+        while (mode.opModeIsActive() && System.currentTimeMillis() - start >= 500) {
+            List<Recognition> updatedRecognitions = detector.getUpdatedRecognitions();
+            if (updatedRecognitions != null) {
+                ArrayList<Recognition> remove = new ArrayList<>();
+                for (Recognition recognition : updatedRecognitions) {
+                    if (recognition.getLabel().equals("Stone")) remove.add(recognition);
+                }
+                updatedRecognitions.removeAll(remove);
+                recognitions.addAll(updatedRecognitions);
+            }
+        }
+        detector.shutdown();
+        double angle = 0;
+        for (Recognition recognition : recognitions) {
+            angle += recognition.estimateAngleToObject(AngleUnit.DEGREES);
+        }
+        angle /= recognitions.size();
+        return angle;
+    }
+
     @Disabled
     @Autonomous
     public static class Test extends LinearOpMode {
@@ -104,46 +128,25 @@ public class AutoModes {
 
     @Autonomous
     public static class StonesLeftTensor extends LinearOpMode {
-        long start = System.currentTimeMillis();
 
         @Override
         public void runOpMode() throws InterruptedException {
             TFObjectDetector detector = getDetector(this);
             Controller controller = startSequence(this, true);
-            detector.activate();
-            ArrayList<Recognition> recognitions = new ArrayList<>();
-            while (opModeIsActive() && System.currentTimeMillis() - start >= 500) {
-                List<Recognition> updatedRecognitions = detector.getUpdatedRecognitions();
-                if (updatedRecognitions!=null) {
-                    ArrayList<Recognition> remove = new ArrayList<>();
-                    for (Recognition recognition : updatedRecognitions) {
-                        if (recognition.getLabel().equals("Stone")) remove.add(recognition);
-                    }
-                    updatedRecognitions.removeAll(remove);
-                    recognitions.addAll(updatedRecognitions);
-                }
-            }
-            detector.shutdown();
-            double angle = 0;
-            for (Recognition recognition : recognitions) {
-                angle += recognition.estimateAngleToObject(AngleUnit.DEGREES);
-            }
-            if (recognitions.size() != 0) {
-                angle /= recognitions.size();
-                telemetry.addData("Average Angle", "%.3f", angle);
-                if (5 <= angle && angle <= 7) {
-                    telemetry.addData("Stones Left", "1");
-                    telemetry.update();
-                    StonesLeft1.go(controller);
-                } else {
-                    telemetry.addData("Stones Left", "2");
-                    telemetry.update();
-                    StonesLeft2.go(controller);
-                }
-            } else {
+            double angle = getAvgAngle(detector, this);
+            telemetry.addData("Average Angle", "%.3f", angle);
+            if (((Double) (angle)).isNaN()) {
                 telemetry.addData("Stones Left", "3");
                 telemetry.update();
                 StonesLeft3.go(controller);
+            } else if (5 <= angle && angle <= 7) {
+                telemetry.addData("Stones Left", "1");
+                telemetry.update();
+                StonesLeft1.go(controller);
+            } else {
+                telemetry.addData("Stones Left", "2");
+                telemetry.update();
+                StonesLeft2.go(controller);
             }
         }
     }
