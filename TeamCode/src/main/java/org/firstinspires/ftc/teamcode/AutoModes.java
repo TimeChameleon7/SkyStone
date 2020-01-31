@@ -18,8 +18,6 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class AutoModes {
@@ -126,18 +124,13 @@ public class AutoModes {
                 }
             }
             detector.shutdown();
-            Collections.sort(recognitions, new Comparator<Recognition>() {
-                @Override
-                public int compare(Recognition r1, Recognition r2) {
-                    return (int) (r2.estimateAngleToObject(AngleUnit.DEGREES) - r1.estimateAngleToObject(AngleUnit.DEGREES) * 1000);
-                }
-            });
             double angle = 0;
             for (Recognition recognition : recognitions) {
                 angle += recognition.estimateAngleToObject(AngleUnit.DEGREES);
             }
             if (recognitions.size() != 0) {
                 angle /= recognitions.size();
+                telemetry.addData("Average Angle", "%.3f", angle);
                 if (5 <= angle && angle <= 7) {
                     telemetry.addData("Stones Left", "1");
                     telemetry.update();
