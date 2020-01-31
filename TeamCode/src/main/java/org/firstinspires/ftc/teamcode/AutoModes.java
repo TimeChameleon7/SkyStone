@@ -57,6 +57,7 @@ public class AutoModes {
         detector.activate();
         ArrayList<Recognition> recognitions = new ArrayList<>();
         long start = System.currentTimeMillis();
+        //todo if need be, make this break if recognitions > 10, and extend the time allotted.
         while (mode.opModeIsActive() && System.currentTimeMillis() - start >= 500) {
             List<Recognition> updatedRecognitions = detector.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
