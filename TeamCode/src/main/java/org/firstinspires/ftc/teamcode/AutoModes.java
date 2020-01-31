@@ -17,6 +17,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class AutoModes {
@@ -34,6 +37,7 @@ public class AutoModes {
 
     private static TFObjectDetector getDetector(LinearOpMode mode) {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        //noinspection SpellCheckingInspection
         parameters.vuforiaLicenseKey = "AW7zmbr/////AAABma7Jq+OAOU1CuaonIFUo0/xJJUyI2A02nsbVBSLuw" +
                 "jlJM3+Po0DLAtKsPIaRZkLN0rYBcSHwhv3r3NmFOMqvOx7Wa88CX+uDNWQhrYOAc27kw3usgqIGWmHpO" +
                 "/1onWmWEv0u6hQX/69KUsN/51vAKJrrd58/KOAlSVlLsQH4K5uI0qT0EAVh1FYCd46wG7pBlTdLcDH1Q" +
@@ -102,24 +106,52 @@ public class AutoModes {
 
     @Autonomous
     public static class StonesLeftTensor extends LinearOpMode {
+        long start = System.currentTimeMillis();
+
         @Override
         public void runOpMode() throws InterruptedException {
             TFObjectDetector detector = getDetector(this);
             Controller controller = startSequence(this, true);
             detector.activate();
-            while (opModeIsActive()) {
-                List<Recognition> recognitions = detector.getUpdatedRecognitions();
-                if (recognitions!=null) {
-                    for (Recognition recognition : recognitions) {
-                        //if (recognition.getLabel().equals("Stone")) continue;
-                        telemetry.addData("Label", "\"%s\"", recognition.getLabel());
-                        telemetry.addData("  Confi", recognition.getConfidence());
-                        telemetry.addData("  Angle", recognition.estimateAngleToObject(AngleUnit.DEGREES));
+            ArrayList<Recognition> recognitions = new ArrayList<>();
+            while (opModeIsActive() && System.currentTimeMillis() - start >= 500) {
+                List<Recognition> updatedRecognitions = detector.getUpdatedRecognitions();
+                if (updatedRecognitions!=null) {
+                    ArrayList<Recognition> remove = new ArrayList<>();
+                    for (Recognition recognition : updatedRecognitions) {
+                        if (recognition.getLabel().equals("Stone")) remove.add(recognition);
                     }
-                    telemetry.update();
+                    updatedRecognitions.removeAll(remove);
+                    recognitions.addAll(updatedRecognitions);
                 }
             }
             detector.shutdown();
+            Collections.sort(recognitions, new Comparator<Recognition>() {
+                @Override
+                public int compare(Recognition r1, Recognition r2) {
+                    return (int) (r2.estimateAngleToObject(AngleUnit.DEGREES) - r1.estimateAngleToObject(AngleUnit.DEGREES) * 1000);
+                }
+            });
+            double angle = 0;
+            for (Recognition recognition : recognitions) {
+                angle += recognition.estimateAngleToObject(AngleUnit.DEGREES);
+            }
+            if (recognitions.size() != 0) {
+                angle /= recognitions.size();
+                if (5 <= angle && angle <= 7) {
+                    telemetry.addData("Stones Left", "1");
+                    telemetry.update();
+                    StonesLeft1.go(controller);
+                } else {
+                    telemetry.addData("Stones Left", "2");
+                    telemetry.update();
+                    StonesLeft2.go(controller);
+                }
+            } else {
+                telemetry.addData("Stones Left", "3");
+                telemetry.update();
+                StonesLeft3.go(controller);
+            }
         }
     }
 
@@ -129,7 +161,7 @@ public class AutoModes {
         @Override
         public void runOpMode() throws InterruptedException {
             Controller controller = startSequence(this, true);
-            //todo use TensorFlow to check the location of the blocks and get which dice roll we're on.
+
         }
 
     }
