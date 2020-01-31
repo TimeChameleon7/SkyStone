@@ -54,11 +54,9 @@ public class AutoModes {
     }
 
     private static double getAvgAngle(TFObjectDetector detector, LinearOpMode mode) {
-        detector.activate();
         ArrayList<Recognition> recognitions = new ArrayList<>();
         long start = System.currentTimeMillis();
-        //todo if need be, make this break if recognitions > 10, and extend the time allotted.
-        while (mode.opModeIsActive() && System.currentTimeMillis() - start >= 500) {
+        while (mode.opModeIsActive() && System.currentTimeMillis() - start < 1000) {
             List<Recognition> updatedRecognitions = detector.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
                 ArrayList<Recognition> remove = new ArrayList<>();
@@ -69,7 +67,6 @@ public class AutoModes {
                 recognitions.addAll(updatedRecognitions);
             }
         }
-        detector.shutdown();
         double angle = 0;
         for (Recognition recognition : recognitions) {
             angle += recognition.estimateAngleToObject(AngleUnit.DEGREES);
@@ -78,7 +75,7 @@ public class AutoModes {
         return angle;
     }
 
-    @Disabled
+
     @Autonomous
     public static class Test extends LinearOpMode {
 
@@ -128,27 +125,66 @@ public class AutoModes {
     }
 
     @Autonomous
+    public static class TensorTester extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            final int actualSkystone = 1,
+                    totalTests = 10;
+            int correct = 0, wrongs = 0, belief;
+            TFObjectDetector detector = getDetector(this);
+            telemetry.addData("Status", "Initialized");
+            telemetry.update();
+            detector.activate();
+            waitForStart();
+            for (int i = 1; i <= totalTests; i++) {
+                double angle = getAvgAngle(detector, this);
+                if (((Double) (angle)).isNaN()) {
+                    belief = 3;
+                } else if (10 <= angle && angle <= 14) {
+                    belief = 2;
+                } else {
+                    belief = 1;
+                }
+                if (belief == actualSkystone) correct++;
+                else wrongs++;
+                telemetry.addData("Actual", actualSkystone);
+                telemetry.addData("Belief", belief);
+                telemetry.addData("Angle", angle);
+                telemetry.addData("Test#/Total Tests", "%d/%d", i, totalTests);
+                telemetry.addData("Correct-Wrong", "%d-%d", correct, wrongs);
+                telemetry.addData("Correct/Tests Run", "%d/%d", correct, i);
+                telemetry.addData("Percentage", "%.2f%%", correct * 100d / i);
+                telemetry.update();
+                sleep(1000);
+            }
+            detector.shutdown();
+            sleep(3000);
+        }
+    }
+
+    @Autonomous
     public static class StonesLeftTensor extends LinearOpMode {
 
         @Override
         public void runOpMode() throws InterruptedException {
-            TFObjectDetector detector = getDetector(this);
+            TFObjectDetector detector = getDetector(this);//todo fix as according to tensortester
             Controller controller = startSequence(this, true);
             double angle = getAvgAngle(detector, this);
             telemetry.addData("Average Angle", "%.3f", angle);
             if (((Double) (angle)).isNaN()) {
-                telemetry.addData("Stones Left", "3");
+                telemetry.addData("Skystone", "3");
                 telemetry.update();
-                StonesLeft3.go(controller);
-            } else if (5 <= angle && angle <= 7) {
-                telemetry.addData("Stones Left", "1");
+                //StonesLeft3.go(controller);
+            } else if (-1 <= angle && angle <= 4) {
+                telemetry.addData("Skystone", "1");
                 telemetry.update();
-                StonesLeft1.go(controller);
+                //StonesLeft1.go(controller);
             } else {
-                telemetry.addData("Stones Left", "2");
+                telemetry.addData("Skystone", "2");
                 telemetry.update();
-                StonesLeft2.go(controller);
+                //StonesLeft2.go(controller);
             }
+            sleep(3000);
         }
     }
 
@@ -309,7 +345,43 @@ public class AutoModes {
         }
 
         static void go(Controller controller) {
-            StonesLeft1.go(controller.flip());
+            controller.moveBySensor()
+                    .saveOrientation("towards blocks")
+                    .saveOrientation("towards bridge", Direction.RIGHT, 90);
+            //89 instead of 90 to attempt to fix tilt on long reverse time
+
+            controller.moveByTime()
+                    .move(Direction.FORWARD, .2)
+                    .sleep(.3)
+                    .move(Direction.RIGHT, .25)
+                    .sleep(.3)
+                    .moveBySensor().gotoOrientation("towards blocks").moveByTime()
+                    .move(Direction.FORWARD, 1.3)
+                    .setPower(.3)
+                    .move(Direction.FORWARD, 1.3)
+                    .holdArmDown(.5)
+                    .setPower(1)
+                    .move(Direction.REVERSE, .7)
+                    .rotate(Direction.RIGHT, .41)
+                    .sleep(.3)
+                    .move(Direction.FORWARD, 2)
+                    .armUp(.7)
+                    .moveBySensor().gotoOrientation("towards bridge").moveByTime()
+                    .move(Direction.REVERSE, .6)
+                    .armDown(.3)
+                    .move(Direction.REVERSE, 2.5)
+                    .armUp(.7)
+                    .moveBySensor().gotoOrientation(Direction.LEFT, .41, "towards blocks").moveByTime()
+                    .setPower(.3)
+                    .move(Direction.FORWARD, 1.2)
+                    .holdArmDown(.3)
+                    .move(Direction.REVERSE, 1.4)
+                    .setPower(1)
+                    .rotate(Direction.RIGHT, .41)
+                    .move(Direction.FORWARD, 3)
+                    .armUp(.6)
+                    .move(Direction.REVERSE, .4)
+                    .sleep(.3);
         }
     }
 
