@@ -22,7 +22,7 @@ import java.util.List;
 
 public class AutoModes {
     private AutoModes(){}
-    //todo diagrams
+
     private static Controller startSequence(LinearOpMode mode, boolean useSensors) {
         Controller controller = new Controller(mode, useSensors);
         mode.telemetry.addData("Status", "Initialized");
@@ -53,7 +53,8 @@ public class AutoModes {
         return tfod;
     }
 
-    private static double getAvgAngle(TFObjectDetector detector, LinearOpMode mode) {
+    private static double getAvgAngle(TFObjectDetector detector, LinearOpMode mode, boolean enableDisable) {
+        if (enableDisable) detector.activate();
         ArrayList<Recognition> recognitions = new ArrayList<>();
         long start = System.currentTimeMillis();
         while (mode.opModeIsActive() && System.currentTimeMillis() - start < 1000) {
@@ -67,6 +68,7 @@ public class AutoModes {
                 recognitions.addAll(updatedRecognitions);
             }
         }
+        if (enableDisable) detector.shutdown();
         double angle = 0;
         for (Recognition recognition : recognitions) {
             angle += recognition.estimateAngleToObject(AngleUnit.DEGREES);
@@ -137,7 +139,7 @@ public class AutoModes {
             detector.activate();
             waitForStart();
             for (int i = 1; i <= totalTests; i++) {
-                double angle = getAvgAngle(detector, this);
+                double angle = getAvgAngle(detector, this, false);
                 if (((Double) (angle)).isNaN()) {
                     belief = 3;
                 } else if (10 <= angle && angle <= 14) {
@@ -167,24 +169,23 @@ public class AutoModes {
 
         @Override
         public void runOpMode() throws InterruptedException {
-            TFObjectDetector detector = getDetector(this);//todo fix as according to tensortester
+            TFObjectDetector detector = getDetector(this);
             Controller controller = startSequence(this, true);
-            double angle = getAvgAngle(detector, this);
+            double angle = getAvgAngle(detector, this, true);
             telemetry.addData("Average Angle", "%.3f", angle);
             if (((Double) (angle)).isNaN()) {
                 telemetry.addData("Skystone", "3");
                 telemetry.update();
-                //StonesLeft3.go(controller);
-            } else if (-1 <= angle && angle <= 4) {
-                telemetry.addData("Skystone", "1");
-                telemetry.update();
-                //StonesLeft1.go(controller);
-            } else {
+                StonesLeft3.go(controller);
+            } else if (10 <= angle && angle <= 14) {
                 telemetry.addData("Skystone", "2");
                 telemetry.update();
-                //StonesLeft2.go(controller);
+                StonesLeft2.go(controller);
+            } else {
+                telemetry.addData("Skystone", "1");
+                telemetry.update();
+                StonesLeft1.go(controller);
             }
-            sleep(3000);
         }
     }
 
