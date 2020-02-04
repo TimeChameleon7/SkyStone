@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.widget.ImageView;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -19,7 +25,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//todo gotta merge partially with what's currently on the phones, gonna use compare to clipboard.
 public class AutoModes {
     private AutoModes(){}
 
@@ -80,15 +86,84 @@ public class AutoModes {
 
     @Autonomous
     public static class Test extends LinearOpMode {
+        final static Object monitor = new Object();
 
         @Override
         public void runOpMode() throws InterruptedException {
             Controller controller = startSequence(this, true);
 
+            Context context = hardwareMap.appContext;
+            if (context instanceof Activity) {
+                telemetry.addData("Context", "is");
+                telemetry.update();
+                sleep(2000);
+                final Activity activity = (Activity) context;
+                Intent intent = new Intent(context, PictureTaker.class);
+                activity.startActivity(intent);
+                final Bitmap bitmap = PictureTaker.getBitmap();
+                telemetry.addData("Bitmap", bitmap);
+                telemetry.update();
+                sleep(2000);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ImageView view = activity.findViewById(R.id.imageView);
+                        view.setImageBitmap(bitmap);
+                    }
+                });
+                telemetry.addData("Bitmap", "is on screen");
+                telemetry.update();
+            } else {
+                telemetry.addData("Context", "not");
+                telemetry.update();
+                sleep(2000);
+            }
+
             controller.moveBySensor()
                     .saveOrientation("start")
                     .sleep(2)
                     .gotoOrientation("start");
+        }
+    }
+
+    @SuppressLint("Registered")
+    static class PictureTaker extends Activity {
+        static final int REQUEST_IMAGE_CAPTURE = 1;
+        private static Bitmap bitmap;
+        static final Object monitor = Test.monitor;
+
+        @Override
+        protected void onStart() {
+            super.onStart();
+            dispatchTakePictureIntent();
+        }
+
+        private void dispatchTakePictureIntent() {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+
+        @Override
+        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+                Bundle extras = data.getExtras();
+                if (extras != null) {
+                    bitmap = (Bitmap) extras.get("data");
+                }
+                synchronized (monitor) {
+                    monitor.notifyAll();
+                }
+            }
+        }
+
+        static Bitmap getBitmap() throws InterruptedException {
+            synchronized (monitor) {
+                if (bitmap == null)
+                    monitor.wait();
+                return bitmap;
+            }
         }
     }
 
