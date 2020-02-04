@@ -1,21 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.widget.ImageView;
+import android.os.Environment;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.vuforia.Frame;
+import com.vuforia.Image;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -23,9 +20,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-//todo gotta merge partially with what's currently on the phones, gonna use compare to clipboard.
+
 public class AutoModes {
     private AutoModes(){}
 
@@ -68,7 +71,10 @@ public class AutoModes {
             if (updatedRecognitions != null) {
                 ArrayList<Recognition> remove = new ArrayList<>();
                 for (Recognition recognition : updatedRecognitions) {
-                    if (recognition.getLabel().equals("Stone")) remove.add(recognition);
+                    double widthToHeight = recognition.getWidth() / recognition.getHeight();
+                    if (recognition.getLabel().equals("Stone") ||
+                        widthToHeight < .7 || widthToHeight > 3)
+                            remove.add(recognition);
                 }
                 updatedRecognitions.removeAll(remove);
                 recognitions.addAll(updatedRecognitions);
@@ -86,84 +92,48 @@ public class AutoModes {
 
     @Autonomous
     public static class Test extends LinearOpMode {
-        final static Object monitor = new Object();
-
         @Override
         public void runOpMode() throws InterruptedException {
-            Controller controller = startSequence(this, true);
+            telemetry.addData("Status", "Initialized");
+            telemetry.update();
+            waitForStart();
 
-            Context context = hardwareMap.appContext;
-            if (context instanceof Activity) {
-                telemetry.addData("Context", "is");
-                telemetry.update();
-                sleep(2000);
-                final Activity activity = (Activity) context;
-                Intent intent = new Intent(context, PictureTaker.class);
-                activity.startActivity(intent);
-                final Bitmap bitmap = PictureTaker.getBitmap();
-                telemetry.addData("Bitmap", bitmap);
-                telemetry.update();
-                sleep(2000);
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ImageView view = activity.findViewById(R.id.imageView);
-                        view.setImageBitmap(bitmap);
-                    }
-                });
-                telemetry.addData("Bitmap", "is on screen");
-                telemetry.update();
-            } else {
-                telemetry.addData("Context", "not");
-                telemetry.update();
-                sleep(2000);
+            VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+            //noinspection SpellCheckingInspection
+            parameters.vuforiaLicenseKey = "AW7zmbr/////AAABma7Jq+OAOU1CuaonIFUo0/xJJUyI2A02nsbVBSLuw" +
+                    "jlJM3+Po0DLAtKsPIaRZkLN0rYBcSHwhv3r3NmFOMqvOx7Wa88CX+uDNWQhrYOAc27kw3usgqIGWmHpO" +
+                    "/1onWmWEv0u6hQX/69KUsN/51vAKJrrd58/KOAlSVlLsQH4K5uI0qT0EAVh1FYCd46wG7pBlTdLcDH1Q" +
+                    "YzSyeDvPklhNEFMRvUEBpOd9eF1gMunhIagFnSBjA1c89ylVx3RDAlsirW3N97jtzd/Eq3Sr0aznz+7G" +
+                    "ar5OtxRUtuoCBMfkAfwkgqtHppySXbRcMGaaC+VtLbeNWWjWTWBczIcoqVH1DqPG5NDn/sP+X9hMV7q+" +
+                    "MUA";
+            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+            VuforiaLocalizer vuforia = ClassFactory.getInstance().createVuforia(parameters);
+            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                    "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+            tfodParameters.minimumConfidence = 0.5;
+            TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+            tfod.loadModelFromAsset("Skystone.tflite", "Stone", "Skystone");
+            tfod.activate();
+            Frame frame = vuforia.getFrameQueue().take();
+            Image image = frame.getImage(0);
+            telemetry.addData("w", image.getWidth());
+            telemetry.addData("h", image.getHeight());
+            try {
+                File sdCard = Environment.getExternalStorageDirectory();
+                File file = new File(sdCard, "data.txt");
+                OutputStream stream = new FileOutputStream(file);
+                telemetry.addData("file", file);
+                ByteBuffer buffer = image.getPixels();
+                while (buffer.hasRemaining()) stream.write(buffer.get());
+                stream.close();
+            } catch (FileNotFoundException ignored) {
+                telemetry.addData("OutputStream", "Unable to find");
+            } catch (IOException ignored) {
+                telemetry.addData("OutputStream", "Unable to write");
             }
-
-            controller.moveBySensor()
-                    .saveOrientation("start")
-                    .sleep(2)
-                    .gotoOrientation("start");
-        }
-    }
-
-    @SuppressLint("Registered")
-    static class PictureTaker extends Activity {
-        static final int REQUEST_IMAGE_CAPTURE = 1;
-        private static Bitmap bitmap;
-        static final Object monitor = Test.monitor;
-
-        @Override
-        protected void onStart() {
-            super.onStart();
-            dispatchTakePictureIntent();
-        }
-
-        private void dispatchTakePictureIntent() {
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            }
-        }
-
-        @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-            if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-                Bundle extras = data.getExtras();
-                if (extras != null) {
-                    bitmap = (Bitmap) extras.get("data");
-                }
-                synchronized (monitor) {
-                    monitor.notifyAll();
-                }
-            }
-        }
-
-        static Bitmap getBitmap() throws InterruptedException {
-            synchronized (monitor) {
-                if (bitmap == null)
-                    monitor.wait();
-                return bitmap;
-            }
+            telemetry.update();
+            sleep(3000);
         }
     }
 
@@ -178,7 +148,7 @@ public class AutoModes {
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.LEFT, .45)
+                    .move(Direction.LEFT, .5)
                     .sleep(.3)
                     .move(Direction.FORWARD, 1.6)
                     .holdArmDown(1.2)
@@ -239,6 +209,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous
     public static class StonesLeftTensor extends LinearOpMode {
 
@@ -275,6 +246,7 @@ public class AutoModes {
 
     }
 
+    @Disabled
     @Autonomous
     public static class StonesLeft1 extends LinearOpMode {
         @Override
@@ -323,6 +295,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous
     public static class StonesLeft2 extends LinearOpMode {
         @Override
@@ -369,6 +342,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous
     public static class StonesLeft3 extends LinearOpMode {
         @Override
@@ -413,6 +387,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous
     public static class StonesRight1 extends LinearOpMode {
         @Override
@@ -461,6 +436,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous
     public static class StonesRight2 extends LinearOpMode {
         @Override
@@ -473,6 +449,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous
     public static class StonesRight3 extends LinearOpMode {
         @Override
