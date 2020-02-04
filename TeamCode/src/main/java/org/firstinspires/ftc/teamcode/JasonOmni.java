@@ -30,12 +30,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 
 /**
@@ -77,9 +75,9 @@ public class JasonOmni extends LinearOpMode {
         motorTwo  = hardwareMap.get(DcMotor.class, "two");
         motorThree  = hardwareMap.get(DcMotor.class, "three");
         motorFour  = hardwareMap.get(DcMotor.class, "four");
-        servoHand = hardwareMap.get(Servo.class, "servoOne");
+        servoHand = hardwareMap.get(Servo.class, "servoDump");
         servoArm = hardwareMap.get(Servo.class, "servoArm");
-        servoDump = hardwareMap.get(Servo.class, "servoDump");
+        servoDump = hardwareMap.get(Servo.class, "servoOne");
 
 
         // Most robots need the motor on one side to be reversed to drive forward
@@ -92,8 +90,8 @@ public class JasonOmni extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
-        double power = .5;
-        
+        double turnPower = .5;
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
@@ -104,42 +102,53 @@ public class JasonOmni extends LinearOpMode {
 
             // POV Mode uses left stick to go forward, and right stick to turn.
             // - This uses basic math to combine motions and is easier to drive straight.
-            double vertical = gamepad1.right_stick_y;
+            double vertical = -gamepad1.right_stick_y;
             double horizontal   =  gamepad1.right_stick_x;
-            double turn = gamepad1.left_stick_x;
-            double up = gamepad1.left_trigger;
-            double down = -gamepad1.right_trigger; 
-            motorOne.setPower(vertical);
-            motorTwo.setPower(horizontal);
-            motorThree.setPower(vertical);
-            motorFour.setPower(horizontal);
-            
-            if(turn!=0){
-                motorOne.setPower(turn);
-                motorThree.setPower(turn);
+            float triggerL = gamepad1.left_trigger;
+            float triggerR = gamepad1.right_trigger;
+
+            if (vertical == 0 && horizontal == 0) {
+                if (triggerL != 0) {
+                    motorOne.setPower(triggerL);
+                    motorTwo.setPower(triggerL);
+                    motorThree.setPower(-triggerL);
+                    motorFour.setPower(-triggerL);
+                } else if (triggerR != 0) {
+                    motorOne.setPower(-triggerR);
+                    motorTwo.setPower(-triggerR);
+                    motorThree.setPower(triggerR);
+                    motorFour.setPower(triggerR);
+                } else if (gamepad1.left_bumper){
+                    motorOne.setPower(turnPower);
+                    motorTwo.setPower(turnPower);
+                    motorThree.setPower(-turnPower);
+                    motorFour.setPower(-turnPower);
+                } else if (gamepad1.right_bumper){
+                    motorOne.setPower(-turnPower);
+                    motorTwo.setPower(-turnPower);
+                    motorThree.setPower(turnPower);
+                    motorFour.setPower(turnPower);
+                } else {
+                    motorOne.setPower(0);
+                    motorTwo.setPower(0);
+                    motorThree.setPower(0);
+                    motorFour.setPower(0);
+                }
+            } else {
+                motorOne.setPower(vertical);
+                motorTwo.setPower(horizontal);
+                motorThree.setPower(vertical);
+                motorFour.setPower(horizontal);
             }
 
-            if(gamepad1.left_bumper){
-                motorOne.setPower(power);
-                motorTwo.setPower(power);
-                motorThree.setPower(-power);
-                motorFour.setPower(-power);
+            if(gamepad1.right_stick_button){
+                servoDump.setPosition(.8);
+            }else if(gamepad1.left_stick_button){
+                servoDump.setPosition(.3);
+            }else{
+                servoDump.setPosition(.5);
             }
-            if(gamepad1.right_bumper){
-                motorOne.setPower(-power);
-                motorTwo.setPower(-power);
-                motorThree.setPower(power);
-                motorFour.setPower(power);
-            }
-            
 
-           
-            if(gamepad1.x){
-                servoHand.setPosition(.8);
-            }else if(gamepad1.b){
-                servoHand.setPosition(.45);
-            }
-            
             if(gamepad1.dpad_up){
                 servoArm.setPosition(6);
             }else if(gamepad1.dpad_down){
@@ -147,11 +156,19 @@ public class JasonOmni extends LinearOpMode {
             }else{
                 servoArm.setPosition(.5);
             }
-            
 
-            // Show the elapsed game time and wheel power.
-            //telemetry.addData("Status", "Power: " + power);
-            //telemetry.update();
+            if(gamepad1.dpad_right){
+                servoHand.setPosition(.3);
+            }else if(gamepad1.dpad_left){
+                servoHand.setPosition(.8);
+            }else{
+                servoHand.setPosition(.5);
+            }
+
+
+            // Show the elapsed game time.
+            telemetry.addData("Elapsed", "%.2f", runtime.seconds());
+            telemetry.update();
         }
     }
 }

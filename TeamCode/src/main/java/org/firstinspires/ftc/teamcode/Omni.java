@@ -90,7 +90,7 @@ public class Omni extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
-        double power = .5;
+        double turnPower = .5;
         
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -104,31 +104,42 @@ public class Omni extends LinearOpMode {
             // - This uses basic math to combine motions and is easier to drive straight.
             double vertical = -gamepad1.right_stick_y;
             double horizontal   =  gamepad1.right_stick_x;
-            double turn = gamepad1.left_stick_x;
-            motorOne.setPower(vertical);
-            motorTwo.setPower(horizontal);
-            motorThree.setPower(vertical);
-            motorFour.setPower(horizontal);
-            
-            if(turn!=0){
-                motorOne.setPower(turn);
-                motorThree.setPower(turn);
-            }
+            float triggerL = gamepad1.left_trigger;
+            float triggerR = gamepad1.right_trigger;
 
-            if(gamepad1.left_bumper){
-                motorOne.setPower(power);
-                motorTwo.setPower(power);
-                motorThree.setPower(-power);
-                motorFour.setPower(-power);
+            if (vertical == 0 && horizontal == 0) {
+                if (triggerL != 0) {
+                    motorOne.setPower(triggerL);
+                    motorTwo.setPower(triggerL);
+                    motorThree.setPower(-triggerL);
+                    motorFour.setPower(-triggerL);
+                } else if (triggerR != 0) {
+                    motorOne.setPower(-triggerR);
+                    motorTwo.setPower(-triggerR);
+                    motorThree.setPower(triggerR);
+                    motorFour.setPower(triggerR);
+                } else if (gamepad1.left_bumper){
+                    motorOne.setPower(turnPower);
+                    motorTwo.setPower(turnPower);
+                    motorThree.setPower(-turnPower);
+                    motorFour.setPower(-turnPower);
+                } else if (gamepad1.right_bumper){
+                    motorOne.setPower(-turnPower);
+                    motorTwo.setPower(-turnPower);
+                    motorThree.setPower(turnPower);
+                    motorFour.setPower(turnPower);
+                } else {
+                    motorOne.setPower(0);
+                    motorTwo.setPower(0);
+                    motorThree.setPower(0);
+                    motorFour.setPower(0);
+                }
+            } else {
+                motorOne.setPower(vertical);
+                motorTwo.setPower(horizontal);
+                motorThree.setPower(vertical);
+                motorFour.setPower(horizontal);
             }
-            if(gamepad1.right_bumper){
-                motorOne.setPower(-power);
-                motorTwo.setPower(-power);
-                motorThree.setPower(power);
-                motorFour.setPower(power);
-            }
-
-
 
             if(gamepad2.right_trigger>0){
                 servoDump.setPosition(.8);
@@ -155,8 +166,8 @@ public class Omni extends LinearOpMode {
             }
 
 
-            // Show the elapsed game time and wheel power.
-            telemetry.addData("Elapsed", runtime.seconds());
+            // Show the elapsed game time.
+            telemetry.addData("Elapsed", "%.2f", runtime.seconds());
             telemetry.update();
         }
     }
