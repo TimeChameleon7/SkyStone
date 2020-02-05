@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Environment;
+import android.provider.MediaStore;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -20,11 +22,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +86,18 @@ public class AutoModes {
         return angle;
     }
 
+    private static void save(Image image, Context context) {
+        final int width = image.getWidth(), height = image.getHeight();
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        ByteBuffer buffer = image.getPixels();
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = buffer.get() & 0xff;
+                bitmap.setPixel(x, y, Color.rgb(rgb, rgb, rgb));
+            }
+        }
+        MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Skystone Image", "");
+    }
 
     @Autonomous
     public static class Test extends LinearOpMode {
@@ -113,25 +122,13 @@ public class AutoModes {
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
             tfodParameters.minimumConfidence = 0.5;
             TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-            tfod.loadModelFromAsset("Skystone.tflite", "Stone", "Skystone");
             tfod.activate();
             Frame frame = vuforia.getFrameQueue().take();
             Image image = frame.getImage(0);
+            tfod.shutdown();
             telemetry.addData("w", image.getWidth());
             telemetry.addData("h", image.getHeight());
-            try {
-                File sdCard = Environment.getExternalStorageDirectory();
-                File file = new File(sdCard, "data.txt");
-                OutputStream stream = new FileOutputStream(file);
-                telemetry.addData("file", file);
-                ByteBuffer buffer = image.getPixels();
-                while (buffer.hasRemaining()) stream.write(buffer.get());
-                stream.close();
-            } catch (FileNotFoundException ignored) {
-                telemetry.addData("OutputStream", "Unable to find");
-            } catch (IOException ignored) {
-                telemetry.addData("OutputStream", "Unable to write");
-            }
+            save(image, hardwareMap.appContext);
             telemetry.update();
             sleep(3000);
         }
