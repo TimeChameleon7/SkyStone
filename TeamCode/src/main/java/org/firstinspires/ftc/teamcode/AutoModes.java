@@ -103,10 +103,6 @@ public class AutoModes {
     public static class Test extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            telemetry.addData("Status", "Initialized");
-            telemetry.update();
-            waitForStart();
-
             VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
             //noinspection SpellCheckingInspection
             parameters.vuforiaLicenseKey = "AW7zmbr/////AAABma7Jq+OAOU1CuaonIFUo0/xJJUyI2A02nsbVBSLuw" +
@@ -120,17 +116,17 @@ public class AutoModes {
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfodParameters.minimumConfidence = 0.5;
             TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+
+            telemetry.addData("Status", "Initialized");
+            telemetry.update();
+            waitForStart();
+
             tfod.activate();
             Frame frame = vuforia.getFrameQueue().take();
             Image image = frame.getImage(0);
-            tfod.shutdown();
-            telemetry.addData("w", image.getWidth());
-            telemetry.addData("h", image.getHeight());
+            tfod.deactivate();
             save(image, hardwareMap.appContext);
-            telemetry.update();
-            sleep(3000);
         }
     }
 
