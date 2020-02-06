@@ -16,6 +16,7 @@ import java.util.List;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+@SuppressWarnings("WeakerAccess")
 public class GrayscaleImageScanner {
     private final Bitmap bitmap;
     protected List<Point> points;
@@ -71,7 +72,6 @@ public class GrayscaleImageScanner {
 
     /**
      * Removes rectangles that do not fit within the specified bounds.
-     *
      */
     public GrayscaleImageScanner removeSize(final int minWidth, final int minHeight, final int maxWidth, final int maxHeight) {
         return removeIf(new Predicate<Rectangle>() {
@@ -125,22 +125,16 @@ public class GrayscaleImageScanner {
     }
 
     /**
-     * Removes rectangles that contain so many points as to exceed the specified max concentration.
+     * Removes rectangles that contain so many points as to deceed the specified max concentration.
      * Concentration is calculated by {@code pointCount / rectangle.width * rectangle.height}
      *
-     * @param maxConcentration Rectangles over this threshold will be removed
+     * @param minConcentration Rectangles over this threshold will be removed.
      */
-    public GrayscaleImageScanner removeMaxConcentration(final double maxConcentration) {
+    public GrayscaleImageScanner removeMinConcentration(final double minConcentration) {
         return removeIf(new Predicate<Rectangle>() {
             @Override
             public boolean test(Rectangle rectangle) {
-                int count = 0;
-                for (Point point : points) {
-                    if (rectangle.contains(point))
-                        count++;
-                }
-                double size = rectangle.width * rectangle.height;
-                return count / size > maxConcentration;
+                return getConcentration(rectangle) < minConcentration;
             }
         });
     }
@@ -188,5 +182,15 @@ public class GrayscaleImageScanner {
     private int getBrightness(int x, int y) {
         //the image is grayscale, so we can just get any of the colors.
         return Color.red(bitmap.getPixel(x, y));
+    }
+
+    public double getConcentration(Rectangle rectangle) {
+        int count = 0;
+        for (Point point : points) {
+            if (rectangle.contains(point))
+                count++;
+        }
+        double size = rectangle.width * rectangle.height;
+        return count / size;
     }
 }

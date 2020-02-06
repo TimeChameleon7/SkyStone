@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -51,10 +52,17 @@ public class VerboseGrayscaleImageScanner extends GrayscaleImageScanner {
     }
 
     @Override
-    public GrayscaleImageScanner removeMaxConcentration(double maxConcentration) {
+    public GrayscaleImageScanner removeMinConcentration(double minConcentration) {
         int initial = rectangles.size();
-        super.removeMaxConcentration(maxConcentration);
-        log("Removed by removeMaxConcentration: %d", initial - rectangles.size());
+        super.removeMinConcentration(minConcentration);
+        log("Removed by removeMinConcentration: %d", initial - rectangles.size());
+        return this;
+    }
+
+    @Override
+    public GrayscaleImageScanner saveWithRectangles(Context context, int rgb) {
+        super.saveWithRectangles(context, rgb);
+        log("Rectangles saved on image: %d", rectangles.size());
         return this;
     }
 

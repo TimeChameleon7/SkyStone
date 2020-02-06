@@ -141,7 +141,12 @@ public class AutoModes {
             scanner
                     .getDarkPoints(11)
                     .getRectangles(26)//25-27
+                    .removeMinConcentration(.02)
                     .saveWithRectangles(context, Color.rgb(255, 0, 0));
+            for (Rectangle rectangle : scanner.rectangles) {
+                telemetry.log().add(rectangle.toString());//118 169
+            }
+            sleep(60_000);
         }
     }
 
