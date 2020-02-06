@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.provider.MediaStore;
 
 import org.firstinspires.ftc.robotcore.external.Predicate;
 
@@ -137,6 +139,27 @@ public class GrayscaleImageScanner {
                 return count / size > maxConcentration;
             }
         });
+    }
+
+    public GrayscaleImageScanner saveWithRectangles(Context context, int rgb) {
+        Bitmap bitmap = Bitmap.createBitmap(this.bitmap);
+        for (Rectangle rectangle : rectangles) {
+            final int
+                minX = Math.max(rectangle.x, 0),
+                minY = Math.max(rectangle.y, 0),
+                maxX = Math.min(rectangle.getMaxX(), bitmap.getWidth()),
+                maxY = Math.min(rectangle.getMaxY(), bitmap.getHeight());
+            for (int x = minX; x < maxX; x++) {
+                bitmap.setPixel(x, minY - 1, rgb);
+                bitmap.setPixel(x, maxY - 1, rgb);
+            }
+            for (int y = minY; y < maxY; y++) {
+                bitmap.setPixel(minX - 1, y, rgb);
+                bitmap.setPixel(maxX - 1, y, rgb);
+            }
+        }
+        MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Skystone Image", "");
+        return this;
     }
 
     private GrayscaleImageScanner removeIf(Predicate<Rectangle> predicate) {
