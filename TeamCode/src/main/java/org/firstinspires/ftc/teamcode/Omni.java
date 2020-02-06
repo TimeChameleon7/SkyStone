@@ -52,7 +52,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @TeleOp(name="Omni", group="Linear Opmode")
 
 public class Omni extends LinearOpMode {
-
+//todo combine Omni and JasonOmni into DriverModes, get the boys to test.
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor motorOne;

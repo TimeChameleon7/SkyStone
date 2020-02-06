@@ -86,8 +86,13 @@ public class AutoModes {
         return angle;
     }
 
-    private static void save(Image image, Context context) {
-        final int width = image.getWidth(), height = image.getHeight();
+    private static void save(Bitmap bitmap, Context context) {
+        MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Skystone Image", "");
+    }
+
+    private static Bitmap imageToBitmap(Image image) {
+        final int width = image.getWidth(),
+                height = image.getHeight();
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         ByteBuffer buffer = image.getPixels();
         for (int y = 0; y < height; y++) {
@@ -96,13 +101,14 @@ public class AutoModes {
                 bitmap.setPixel(x, y, Color.rgb(rgb, rgb, rgb));
             }
         }
-        MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Skystone Image", "");
+        return bitmap;
     }
 
     @Autonomous
     public static class Test extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
+            Context context = hardwareMap.appContext;
             VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
             //noinspection SpellCheckingInspection
             parameters.vuforiaLicenseKey = "AW7zmbr/////AAABma7Jq+OAOU1CuaonIFUo0/xJJUyI2A02nsbVBSLuw" +
@@ -113,8 +119,8 @@ public class AutoModes {
                     "MUA";
             parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
             VuforiaLocalizer vuforia = ClassFactory.getInstance().createVuforia(parameters);
-            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                    "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            int tfodMonitorViewId = context.getResources().getIdentifier(
+                    "tfodMonitorViewId", "id", context.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
             TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
 
@@ -126,7 +132,16 @@ public class AutoModes {
             Frame frame = vuforia.getFrameQueue().take();
             Image image = frame.getImage(0);
             tfod.deactivate();
-            save(image, hardwareMap.appContext);
+
+            Bitmap bitmap = imageToBitmap(image);
+            //save(bitmap, context);
+            VerboseGrayscaleImageScanner scanner = new VerboseGrayscaleImageScanner(
+                    bitmap, 340, 0, 130, bitmap.getHeight() * 3 / 4, telemetry
+            );
+            scanner
+                    .getDarkPoints(11)
+                    .getRectangles(26)//25-27
+                    .saveWithRectangles(context, Color.rgb(255, 0, 0));
         }
     }
 

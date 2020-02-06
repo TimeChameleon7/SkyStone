@@ -85,6 +85,10 @@ public class GrayscaleImageScanner {
         });
     }
 
+    /**
+     * Removes rectangles that have less than the minimum number of points.
+     * @param minPoints Rectangles with less points contained than this number will be removed.
+     */
     public GrayscaleImageScanner removeMinPoints(final int minPoints) {
         return removeIf(new Predicate<Rectangle>() {
             @Override
@@ -142,6 +146,7 @@ public class GrayscaleImageScanner {
     }
 
     public GrayscaleImageScanner saveWithRectangles(Context context, int rgb) {
+        if (rectangles == null) throw new UnsupportedOperationException("getRectangles must be run before any of the remove methods.");
         Bitmap bitmap = Bitmap.createBitmap(this.bitmap);
         for (Rectangle rectangle : rectangles) {
             final int
@@ -150,11 +155,11 @@ public class GrayscaleImageScanner {
                 maxX = Math.min(rectangle.getMaxX(), bitmap.getWidth()),
                 maxY = Math.min(rectangle.getMaxY(), bitmap.getHeight());
             for (int x = minX; x < maxX; x++) {
-                bitmap.setPixel(x, minY - 1, rgb);
+                bitmap.setPixel(x, minY, rgb);
                 bitmap.setPixel(x, maxY - 1, rgb);
             }
             for (int y = minY; y < maxY; y++) {
-                bitmap.setPixel(minX - 1, y, rgb);
+                bitmap.setPixel(minX, y, rgb);
                 bitmap.setPixel(maxX - 1, y, rgb);
             }
         }

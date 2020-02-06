@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.annotation.SuppressLint;
 import android.graphics.Point;
 
 //I can't believe this isn't in the android sdk
@@ -109,5 +110,12 @@ public class Rectangle {
                     height == r.height;
         }
         return false;
+    }
+
+    @SuppressLint("DefaultLocale")
+    @Override
+    public String toString() {
+        return String.format("(%d, %d) to (%d, %d), w = %d, h = %d",
+                x, y, getMaxX(), getMaxY(), width, height);
     }
 }

@@ -22,7 +22,7 @@ public class VerboseGrayscaleImageScanner extends GrayscaleImageScanner {
     @Override
     public GrayscaleImageScanner getRectangles(int minDimension) {
         super.getRectangles(minDimension);
-        log("initial Rectangle size: %d", rectangles.size());
+        log("Initial Rectangle size: %d", rectangles.size());
         return this;
     }
 
