@@ -144,7 +144,7 @@ public class AutoModes {
                     .removeMinConcentration(.02)
                     .saveWithRectangles(context, Color.rgb(255, 0, 0));
             for (Rectangle rectangle : scanner.rectangles) {
-                telemetry.log().add(rectangle.toString());//118 169
+                telemetry.log().add(rectangle.toString());
             }
             sleep(60_000);
         }
