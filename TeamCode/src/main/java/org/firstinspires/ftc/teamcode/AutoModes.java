@@ -8,7 +8,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.provider.MediaStore;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -17,6 +16,7 @@ import com.vuforia.Frame;
 import com.vuforia.Image;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -37,6 +37,36 @@ public class AutoModes {
         mode.telemetry.addData("Status", "Started");
         mode.telemetry.update();
         return controller;
+    }
+
+    private static ControllerRectangle startSeeingSequence(LinearOpMode mode, boolean useSensors) throws InterruptedException {
+        Context context = mode.hardwareMap.appContext;
+        Telemetry telemetry = mode.telemetry;
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        //noinspection SpellCheckingInspection
+        parameters.vuforiaLicenseKey = "AW7zmbr/////AAABma7Jq+OAOU1CuaonIFUo0/xJJUyI2A02nsbVBSLuw" +
+                "jlJM3+Po0DLAtKsPIaRZkLN0rYBcSHwhv3r3NmFOMqvOx7Wa88CX+uDNWQhrYOAc27kw3usgqIGWmHpO" +
+                "/1onWmWEv0u6hQX/69KUsN/51vAKJrrd58/KOAlSVlLsQH4K5uI0qT0EAVh1FYCd46wG7pBlTdLcDH1Q" +
+                "YzSyeDvPklhNEFMRvUEBpOd9eF1gMunhIagFnSBjA1c89ylVx3RDAlsirW3N97jtzd/Eq3Sr0aznz+7G" +
+                "ar5OtxRUtuoCBMfkAfwkgqtHppySXbRcMGaaC+VtLbeNWWjWTWBczIcoqVH1DqPG5NDn/sP+X9hMV7q+" +
+                "MUA";
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        VuforiaLocalizer vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        int tfodMonitorViewId = context.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", context.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+        mode.waitForStart();
+
+        tfod.activate();
+        Frame frame = vuforia.getFrameQueue().take();
+        Image image = frame.getImage(0);
+        tfod.deactivate();
+
+        Bitmap bitmap = imageToBitmap(image);
     }
 
     private static TFObjectDetector getDetector(LinearOpMode mode) {
@@ -84,10 +114,6 @@ public class AutoModes {
         }
         angle /= recognitions.size();
         return angle;
-    }
-
-    private static void save(Bitmap bitmap, Context context) {
-        MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Skystone Image", "");
     }
 
     private static Bitmap imageToBitmap(Image image) {
@@ -146,6 +172,7 @@ public class AutoModes {
             for (Rectangle rectangle : scanner.rectangles) {
                 telemetry.log().add(rectangle.toString());
             }
+            //record information for left SkyStones to allow for autonomous stones runs
             sleep(60_000);
         }
     }
@@ -184,6 +211,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous
     public static class TensorTester extends LinearOpMode {
         @Override
@@ -259,7 +287,6 @@ public class AutoModes {
 
     }
 
-    @Disabled
     @Autonomous
     public static class StonesLeft1 extends LinearOpMode {
         @Override
@@ -308,7 +335,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous
     public static class StonesLeft2 extends LinearOpMode {
         @Override
@@ -355,7 +381,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous
     public static class StonesLeft3 extends LinearOpMode {
         @Override
@@ -400,7 +425,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous
     public static class StonesRight1 extends LinearOpMode {
         @Override
@@ -449,7 +473,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous
     public static class StonesRight2 extends LinearOpMode {
         @Override
@@ -462,7 +485,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous
     public static class StonesRight3 extends LinearOpMode {
         @Override
@@ -578,6 +600,19 @@ public class AutoModes {
                         .sleep(10);
                 manager.unregisterListener(listener);
             }
+        }
+    }
+
+    /**
+     * Basic pairing class for usage with the sight-based modes.
+     */
+    private static class ControllerRectangle {
+        final Controller controller;
+        final List<Rectangle> rectangles;
+
+        private ControllerRectangle(Controller controller, List<Rectangle> rectangles) {
+            this.controller = controller;
+            this.rectangles = rectangles;
         }
     }
 }
