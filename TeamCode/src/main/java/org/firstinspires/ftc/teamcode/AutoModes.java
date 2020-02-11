@@ -39,7 +39,14 @@ public class AutoModes {
         return controller;
     }
 
-    private static ControllerRectangle startSeeingSequence(LinearOpMode mode, boolean useSensors) throws InterruptedException {
+    private static ControllerRectangle startSeeingSequence(
+            LinearOpMode mode,
+            boolean useSensors,
+            int x,
+            int y,
+            int width,
+            int height
+    ) throws InterruptedException {
         Context context = mode.hardwareMap.appContext;
         Telemetry telemetry = mode.telemetry;
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
@@ -67,6 +74,20 @@ public class AutoModes {
         tfod.deactivate();
 
         Bitmap bitmap = imageToBitmap(image);
+        VerboseGrayscaleImageScanner scanner = new VerboseGrayscaleImageScanner(
+                bitmap, x, y, width, height, mode.telemetry
+        );
+        scanner
+                .getDarkPoints(11)
+                .getRectangles(26)
+                .removeMinConcentration(.02)
+                .saveWithRectangles(context, Color.rgb(255, 0, 0));
+        mode.telemetry.addData("Status", "Initialized");
+        mode.telemetry.update();
+        mode.waitForStart();
+        mode.telemetry.addData("Status", "Started");
+        mode.telemetry.update();
+        return new ControllerRectangle(new Controller(mode, useSensors), scanner.rectangles);
     }
 
     private static TFObjectDetector getDetector(LinearOpMode mode) {
@@ -285,6 +306,25 @@ public class AutoModes {
 
         }
 
+    }
+
+    public static class SkyStonesLeft extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            ControllerRectangle controllerRectangle = startSeeingSequence(this, true, 340, 0, 130, 270);
+            Controller controller = controllerRectangle.controller;
+            List<Rectangle> rectangles = controllerRectangle.rectangles;
+            for (Rectangle rectangle : rectangles) {
+                telemetry.log().add(rectangle.toString());
+            }
+        }
+    }
+
+    public static class SkyStonesRight extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+
+        }
     }
 
     @Autonomous
