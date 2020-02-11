@@ -183,16 +183,27 @@ public class AutoModes {
             Bitmap bitmap = imageToBitmap(image);
             //save(bitmap, context);
             VerboseGrayscaleImageScanner scanner = new VerboseGrayscaleImageScanner(
-                    bitmap, 340, 0, 130, bitmap.getHeight() * 3 / 4, telemetry
+                    bitmap, 340, 0, 130, 270, telemetry
             );
             scanner
                     .getDarkPoints(11)
-                    .getRectangles(26)//25-27
-                    .removeMinConcentration(.02)
-                    .saveWithRectangles(context, Color.rgb(255, 0, 0));
+                    .getRectangles(26);
+
+            List<Rectangle> rectangles = new ArrayList<>(scanner.rectangles);
+            scanner.removeConcentration(.017, .025);
+            if (scanner.rectangles.size() == 0) scanner.rectangles = rectangles;
+
+            rectangles = new ArrayList<>(rectangles);
+            scanner.removeSize(115, 125, 155, 165);
+            if (scanner.rectangles.size() == 0) scanner.rectangles = rectangles;
+
+            scanner.saveWithRectangles(context, Color.rgb(255, 0, 0));
+
             for (Rectangle rectangle : scanner.rectangles) {
                 telemetry.log().add(rectangle.toString());
+                telemetry.log().add("%.3f", scanner.getConcentration(rectangle));
             }
+
             //record information for left SkyStones to allow for autonomous stones runs
             sleep(60_000);
         }

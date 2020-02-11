@@ -60,6 +60,14 @@ public class VerboseGrayscaleImageScanner extends GrayscaleImageScanner {
     }
 
     @Override
+    public GrayscaleImageScanner removeConcentration(double min, double max) {
+        int initial = rectangles.size();
+        super.removeConcentration(min, max);
+        log("Removed by removeConcentration: %d", initial - rectangles.size());
+        return this;
+    }
+
+    @Override
     public GrayscaleImageScanner saveWithRectangles(Context context, int rgb) {
         super.saveWithRectangles(context, rgb);
         log("Rectangles saved on image: %d", rectangles.size());

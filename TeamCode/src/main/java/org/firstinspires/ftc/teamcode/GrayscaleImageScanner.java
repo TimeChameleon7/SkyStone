@@ -139,6 +139,16 @@ public class GrayscaleImageScanner {
         });
     }
 
+    public GrayscaleImageScanner removeConcentration(final double min, final double max) {
+        return removeIf(new Predicate<Rectangle>() {
+            @Override
+            public boolean test(Rectangle rectangle) {
+                double concentration = getConcentration(rectangle);
+                return concentration < min || concentration > max;
+            }
+        });
+    }
+
     public GrayscaleImageScanner saveWithRectangles(Context context, int rgb) {
         if (rectangles == null) throw new UnsupportedOperationException("getRectangles must be run before any of the remove methods.");
         Bitmap bitmap = Bitmap.createBitmap(this.bitmap);
