@@ -187,17 +187,10 @@ public class AutoModes {
             );
             scanner
                     .getDarkPoints(11)
-                    .getRectangles(26);
-
-            List<Rectangle> rectangles = new ArrayList<>(scanner.rectangles);
-            scanner.removeConcentration(.017, .025);
-            if (scanner.rectangles.size() == 0) scanner.rectangles = rectangles;
-
-            rectangles = new ArrayList<>(rectangles);
-            scanner.removeSize(115, 125, 155, 165);
-            if (scanner.rectangles.size() == 0) scanner.rectangles = rectangles;
-
-            scanner.saveWithRectangles(context, Color.rgb(255, 0, 0));
+                    .getRectangles(26)
+                    .removeConcentration(.017, .025)
+                    .removeSize(115, 125, 155, 165)
+                    .saveWithRectangles(context, Color.rgb(255, 0, 0));
 
             for (Rectangle rectangle : scanner.rectangles) {
                 telemetry.log().add(rectangle.toString());
@@ -319,18 +312,23 @@ public class AutoModes {
 
     }
 
+    @Disabled
+    @Autonomous
     public static class SkyStonesLeft extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            ControllerRectangle controllerRectangle = startSeeingSequence(this, true, 340, 0, 130, 270);
+            ControllerRectangle controllerRectangle = startSeeingSequence(this, false, 340, 0, 130, 270);
             Controller controller = controllerRectangle.controller;
             List<Rectangle> rectangles = controllerRectangle.rectangles;
             for (Rectangle rectangle : rectangles) {
                 telemetry.log().add(rectangle.toString());
             }
+            sleep(60_000);
         }
     }
 
+    @Disabled
+    @Autonomous
     public static class SkyStonesRight extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
