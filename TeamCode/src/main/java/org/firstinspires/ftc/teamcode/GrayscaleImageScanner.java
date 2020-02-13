@@ -98,11 +98,11 @@ public class GrayscaleImageScanner {
                     if (rectangle.contains(point)) {
                         count++;
                         if (count == minPoints) {
-                            return true;
+                            return false;
                         }
                     }
                 }
-                return false;
+                return true;
             }
         });
     }
