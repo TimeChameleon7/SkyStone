@@ -104,4 +104,9 @@ public class SkyStoneScanner {
         MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Skystone Image", "");
         return this;
     }
+
+    public SkyStoneScanner save(Context context) {
+        MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Skystone Image", "");
+        return this;
+    }
 }

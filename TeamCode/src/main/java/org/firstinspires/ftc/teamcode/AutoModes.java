@@ -39,7 +39,7 @@ public class AutoModes {
         return controller;
     }
 
-    private static ControllerRectangle startSeeingSequence(
+    private static ControllerScanner startSeeingSequence(
             LinearOpMode mode,
             boolean useSensors,
             int x,
@@ -74,20 +74,10 @@ public class AutoModes {
         tfod.deactivate();
 
         Bitmap bitmap = imageToBitmap(image);
-        VerboseGrayscaleImageScanner scanner = new VerboseGrayscaleImageScanner(
-                bitmap, x, y, width, height, mode.telemetry
-        );
-        scanner
-                .getDarkPoints(11)
-                .getRectangles(26)
-                .removeMinConcentration(.02)
-                .saveWithRectangles(context, Color.rgb(255, 0, 0));
-        mode.telemetry.addData("Status", "Initialized");
-        mode.telemetry.update();
-        mode.waitForStart();
-        mode.telemetry.addData("Status", "Started");
-        mode.telemetry.update();
-        return new ControllerRectangle(new Controller(mode, useSensors), scanner.rectangles);
+        SkyStoneScanner scanner =
+                new SkyStoneScanner(bitmap, x, y, width, height)
+                        .getLines(11, 10);
+        return new ControllerScanner(new Controller(mode, useSensors), scanner);
     }
 
     private static TFObjectDetector getDetector(LinearOpMode mode) {
@@ -155,50 +145,9 @@ public class AutoModes {
     public static class Test extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            Context context = hardwareMap.appContext;
-            VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-            //noinspection SpellCheckingInspection
-            parameters.vuforiaLicenseKey = "AW7zmbr/////AAABma7Jq+OAOU1CuaonIFUo0/xJJUyI2A02nsbVBSLuw" +
-                    "jlJM3+Po0DLAtKsPIaRZkLN0rYBcSHwhv3r3NmFOMqvOx7Wa88CX+uDNWQhrYOAc27kw3usgqIGWmHpO" +
-                    "/1onWmWEv0u6hQX/69KUsN/51vAKJrrd58/KOAlSVlLsQH4K5uI0qT0EAVh1FYCd46wG7pBlTdLcDH1Q" +
-                    "YzSyeDvPklhNEFMRvUEBpOd9eF1gMunhIagFnSBjA1c89ylVx3RDAlsirW3N97jtzd/Eq3Sr0aznz+7G" +
-                    "ar5OtxRUtuoCBMfkAfwkgqtHppySXbRcMGaaC+VtLbeNWWjWTWBczIcoqVH1DqPG5NDn/sP+X9hMV7q+" +
-                    "MUA";
-            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-            VuforiaLocalizer vuforia = ClassFactory.getInstance().createVuforia(parameters);
-            int tfodMonitorViewId = context.getResources().getIdentifier(
-                    "tfodMonitorViewId", "id", context.getPackageName());
-            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-
-            telemetry.addData("Status", "Initialized");
-            telemetry.update();
-            waitForStart();
-
-            tfod.activate();
-            Frame frame = vuforia.getFrameQueue().take();
-            Image image = frame.getImage(0);
-            tfod.deactivate();
-
-            Bitmap bitmap = imageToBitmap(image);
-            //save(bitmap, context);
-            VerboseGrayscaleImageScanner scanner = new VerboseGrayscaleImageScanner(
-                    bitmap, 340, 0, 130, 270, telemetry
-            );
-            scanner
-                    .getDarkPoints(11)
-                    .getRectangles(26)
-                    .removeConcentration(.017, .025)
-                    .removeSize(115, 125, 155, 165)
-                    .saveWithRectangles(context, Color.rgb(255, 0, 0));
-
-            for (Rectangle rectangle : scanner.rectangles) {
-                telemetry.log().add(rectangle.toString());
-                telemetry.log().add("%.3f", scanner.getConcentration(rectangle));
-            }
-
-            //record information for left SkyStones to allow for autonomous stones runs
-            sleep(60_000);
+            startSeeingSequence(this, false, 0, 0, 640, 360)
+                    .scanner
+                    .save(hardwareMap.appContext);
         }
     }
 
@@ -312,17 +261,17 @@ public class AutoModes {
 
     }
 
-    @Disabled
     @Autonomous
     public static class SkyStonesLeft extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            ControllerRectangle controllerRectangle = startSeeingSequence(this, false, 340, 0, 130, 270);
-            Controller controller = controllerRectangle.controller;
-            List<Rectangle> rectangles = controllerRectangle.rectangles;
-            for (Rectangle rectangle : rectangles) {
-                telemetry.log().add(rectangle.toString());
-            }
+            ControllerScanner controllerScanner = startSeeingSequence(this, false, 0, 0, 640, 360);
+            Controller controller = controllerScanner.controller;
+            SkyStoneScanner scanner = controllerScanner.scanner;
+            telemetry.log().add("x: %s", scanner.xs);
+            telemetry.log().add("y: %s", scanner.ys);
+            scanner.save(hardwareMap.appContext, Color.red(255));
+
             sleep(60_000);
         }
     }
@@ -655,13 +604,13 @@ public class AutoModes {
     /**
      * Basic pairing class for usage with the sight-based modes.
      */
-    private static class ControllerRectangle {
+    private static class ControllerScanner {
         final Controller controller;
-        final List<Rectangle> rectangles;
+        final SkyStoneScanner scanner;
 
-        private ControllerRectangle(Controller controller, List<Rectangle> rectangles) {
+        private ControllerScanner(Controller controller, SkyStoneScanner scanner) {
             this.controller = controller;
-            this.rectangles = rectangles;
+            this.scanner = scanner;
         }
     }
 }
