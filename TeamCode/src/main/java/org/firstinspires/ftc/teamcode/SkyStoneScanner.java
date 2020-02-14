@@ -58,11 +58,6 @@ public class SkyStoneScanner {
 
     public SkyStoneScanner saveWithLines(Context context, int rgb) {
         Bitmap bitmap = Bitmap.createBitmap(this.bitmap);
-        for (int x : xs) {
-            for (int y = 0; y < bitmap.getHeight(); y++) {
-                bitmap.setPixel(x, y, rgb);
-            }
-        }
         for (int y : ys) {
             for (int x = 0; x < bitmap.getWidth(); x++) {
                 bitmap.setPixel(x, y, rgb);
