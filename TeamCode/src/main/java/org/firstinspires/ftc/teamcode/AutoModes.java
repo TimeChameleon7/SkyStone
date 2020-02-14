@@ -160,7 +160,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous
     public static class SkyStonesRight extends LinearOpMode {
         @Override
