@@ -141,18 +141,16 @@ public class AutoModes {
     public static class SkyStonesLeft extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            ControllerScanner controllerScanner = startSeeingSequence(this, false, 360, 0, 90, 280);
-            Controller controller = controllerScanner.controller;
-            SkyStoneScanner scanner = controllerScanner.scanner;
-            if (scanner.fitsBetween(144, 272, 3)) {
+            ControllerScanner controllerScanner = startSeeingSequence(this, true, 360, 0, 90, 280);
+            if (controllerScanner.scanner.fitsBetween(144, 280, 3)) {
                 logIntent("1");
-                StonesLeft1.go(controller);
-            } else if (scanner.fitsBetween(23, 151, 3)) {
+                StonesLeft1.go(controllerScanner.controller);
+            } else if (controllerScanner.scanner.fitsBetween(23, 151, 3)) {
                 logIntent("2");
-                StonesLeft2.go(controller);
+                StonesLeft2.go(controllerScanner.controller);
             } else {
                 logIntent("3");
-                StonesLeft3.go(controller);
+                StonesLeft3.go(controllerScanner.controller);
             }
         }
 
@@ -167,7 +165,22 @@ public class AutoModes {
     public static class SkyStonesRight extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
+            ControllerScanner controllerScanner = startSeeingSequence(this, true, 360, 0, 90, 280);
+            if (controllerScanner.scanner.fitsBetween(0, 101, 3)) {
+                logIntent("1");
+                StonesRight1.go(controllerScanner.controller);
+            } else if (controllerScanner.scanner.fitsBetween(96, 225, 3)) {
+                logIntent("2");
+                StonesRight2.go(controllerScanner.controller);
+            } else {
+                logIntent("3");
+                StonesRight3.go(controllerScanner.controller);
+            }
+        }
 
+        private void logIntent(String value) {
+            telemetry.addData("Right", value);
+            telemetry.update();
         }
     }
 
