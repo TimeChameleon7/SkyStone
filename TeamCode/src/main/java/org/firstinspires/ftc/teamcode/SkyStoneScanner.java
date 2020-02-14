@@ -11,9 +11,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+@SuppressWarnings("WeakerAccess")
 public class SkyStoneScanner {
-    public final Bitmap bitmap;
-    public List<Integer> xs;
+    private final Bitmap bitmap;
     public List<Integer> ys;
 
     public SkyStoneScanner(Bitmap bitmap, int x, int y, int width, int height) {
@@ -21,32 +21,6 @@ public class SkyStoneScanner {
     }
 
     public SkyStoneScanner getLines(int maxBrightness, int length) {
-        return getXs(maxBrightness, length).getYs(maxBrightness, length);
-    }
-
-    public SkyStoneScanner getXs(int maxBrightness, int length) {
-        List<Point> widthDarkCount = new ArrayList<>(bitmap.getHeight());
-        for (int x = 0; x < bitmap.getWidth(); x++) {
-            int count = 0;
-            for (int y = 0; y < bitmap.getHeight(); y++) {
-                if (Color.red(bitmap.getPixel(x, y)) < maxBrightness)
-                    count++;
-            }
-            widthDarkCount.add(new Point(x, count));
-        }
-        Collections.sort(widthDarkCount, new Comparator<Point>() {
-            @Override
-            public int compare(Point p1, Point p2) {
-                return p2.y - p1.y;
-            }
-        });
-        xs = new ArrayList<>();
-        for (int i = 0; i < length; i++)
-            xs.add(widthDarkCount.get(i).x);
-        return this;
-    }
-
-    public SkyStoneScanner getYs(int maxBrightness, int length) {
         List<Point> heightDarkCount = new ArrayList<>(bitmap.getHeight());
         for (int y = 0; y < bitmap.getHeight(); y++) {
             int count = 0;
@@ -70,15 +44,8 @@ public class SkyStoneScanner {
         return this;
     }
 
-    public boolean fitsBetween(int minX, int minY, int maxX, int maxY, int allowedExceptions) {
+    public boolean fitsBetween(int minY, int maxY, int allowedExceptions) {
         int outliers = 0;
-        for (int x : xs) {
-            if (x < minX || x > maxX) {
-                outliers++;
-                if (outliers > allowedExceptions)
-                    return false;
-            }
-        }
         for (int y : ys) {
             if (y < minY || y > maxY) {
                 outliers++;
@@ -89,7 +56,7 @@ public class SkyStoneScanner {
         return true;
     }
 
-    public SkyStoneScanner save(Context context, int rgb) {
+    public SkyStoneScanner saveWithLines(Context context, int rgb) {
         Bitmap bitmap = Bitmap.createBitmap(this.bitmap);
         for (int x : xs) {
             for (int y = 0; y < bitmap.getHeight(); y++) {

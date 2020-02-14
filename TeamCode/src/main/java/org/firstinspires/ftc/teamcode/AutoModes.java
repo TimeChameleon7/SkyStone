@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -17,14 +16,10 @@ import com.vuforia.Image;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AutoModes {
     private AutoModes(){}
@@ -149,11 +144,21 @@ public class AutoModes {
             ControllerScanner controllerScanner = startSeeingSequence(this, false, 360, 0, 90, 280);
             Controller controller = controllerScanner.controller;
             SkyStoneScanner scanner = controllerScanner.scanner;
-            telemetry.log().add("x: %s", scanner.xs);
-            telemetry.log().add("y: %s", scanner.ys);
-            scanner.save(hardwareMap.appContext, Color.red(255));
+            if (scanner.fitsBetween(144, 272, 3)) {
+                logIntent("1");
+                StonesLeft1.go(controller);
+            } else if (scanner.fitsBetween(23, 151, 3)) {
+                logIntent("2");
+                StonesLeft2.go(controller);
+            } else {
+                logIntent("3");
+                StonesLeft3.go(controller);
+            }
+        }
 
-            sleep(60_000);
+        private void logIntent(String value) {
+            telemetry.addData("Left", value);
+            telemetry.update();
         }
     }
 
