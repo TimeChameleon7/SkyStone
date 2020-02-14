@@ -93,7 +93,7 @@ public class AutoModes {
     }
 
     @Disabled
-    @Autonomous
+    @Autonomous(group = "Test", name = "Test")
     public static class Test extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -103,7 +103,7 @@ public class AutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(group = "Foundation", name = "Foundation Left")
     public static class FoundationLeft extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -128,7 +128,7 @@ public class AutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(group = "Foundation", name = "Foundation Right")
     public static class FoundationRight extends LinearOpMode {
 
         @Override
@@ -137,7 +137,7 @@ public class AutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(group = "SkyStone", name = "SkyStone Left")
     public static class SkyStonesLeft extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -160,7 +160,7 @@ public class AutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(group = "SkyStone", name = "SkyStone Right")
     public static class SkyStonesRight extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -183,7 +183,7 @@ public class AutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(group = "Stones Left", name = "SkyStone Left 1")
     public static class StonesLeft1 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -231,7 +231,7 @@ public class AutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(group = "Stones Left", name = "SkyStone Left 2")
     public static class StonesLeft2 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -277,7 +277,7 @@ public class AutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(group = "Stones Left", name = "SkyStone Left 3")
     public static class StonesLeft3 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -321,7 +321,7 @@ public class AutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(group = "Stones Right", name = "SkyStone Right 1")
     public static class StonesRight1 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -369,7 +369,7 @@ public class AutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(group = "Stones Right", name = "SkyStone Right 2")
     public static class StonesRight2 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -381,7 +381,7 @@ public class AutoModes {
         }
     }
 
-    @Autonomous
+    @Autonomous(group = "Stones Right", name = "SkyStone Right 3")
     public static class StonesRight3 extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
@@ -394,7 +394,7 @@ public class AutoModes {
     }
 
     @Disabled
-    @Autonomous
+    @Autonomous(group = "SensorTest", name = "Sensor Test")
     public static class SensorTest extends LinearOpMode {
         @Override
         public void runOpMode() {
