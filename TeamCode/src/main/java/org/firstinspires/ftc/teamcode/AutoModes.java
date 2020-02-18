@@ -76,6 +76,8 @@ public class AutoModes {
         SkyStoneScanner scanner =
                 new SkyStoneScanner(image, x, y, width, height)
                 .getLines(11, 10);
+        telemetry.addData("Status", "Started");
+        telemetry.update();
         return new ControllerScanner(controller, scanner);
     }
 
@@ -137,7 +139,6 @@ public class AutoModes {
             FoundationLeft.go(startSequence(this, false).flip());
         }
     }
-
 
     @Autonomous(group = "SkyStone", name = "SkyStone Left")
     public static class SkyStonesLeft extends LinearOpMode {
