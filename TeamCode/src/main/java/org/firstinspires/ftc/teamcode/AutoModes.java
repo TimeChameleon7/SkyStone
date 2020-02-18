@@ -22,6 +22,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.nio.ByteBuffer;
 
 public class AutoModes {
+    //todo all of Stone Right and Stone Left 3 need modifications.
     private AutoModes(){}
 
     private static Controller startSequence(LinearOpMode mode, boolean useSensors) {
@@ -144,17 +145,16 @@ public class AutoModes {
     public static class SkyStonesLeft extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            ControllerScanner controllerScanner = startSeeingSequence(this, false, 360, 0, 90, 280);
+            ControllerScanner controllerScanner = startSeeingSequence(this, true, 360, 0, 90, 280);
             if (controllerScanner.scanner.fitsBetween(144, 280, 3)) {
                 logIntent("1");
-                //set above to true when the below is used.
-                //StonesLeft1.go(controllerScanner.controller);
+                StonesLeft1.go(controllerScanner.controller);
             } else if (controllerScanner.scanner.fitsBetween(23, 151, 3)) {
                 logIntent("2");
-                //StonesLeft2.go(controllerScanner.controller);
+                StonesLeft2.go(controllerScanner.controller);
             } else {
                 logIntent("3");
-                //StonesLeft3.go(controllerScanner.controller);
+                StonesLeft3.go(controllerScanner.controller);
             }
         }
 
@@ -168,17 +168,16 @@ public class AutoModes {
     public static class SkyStonesRight extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            ControllerScanner controllerScanner = startSeeingSequence(this, false, 360, 0, 90, 280);
+            ControllerScanner controllerScanner = startSeeingSequence(this, true, 360, 0, 90, 280);
             if (controllerScanner.scanner.fitsBetween(0, 101, 3)) {
                 logIntent("1");
-                //set above to true when the below is used.
-                //StonesRight1.go(controllerScanner.controller);
+                StonesRight1.go(controllerScanner.controller);
             } else if (controllerScanner.scanner.fitsBetween(96, 225, 3)) {
                 logIntent("2");
-                //StonesRight2.go(controllerScanner.controller);
+                StonesRight2.go(controllerScanner.controller);
             } else {
                 logIntent("3");
-                //StonesRight3.go(controllerScanner.controller);
+                StonesRight3.go(controllerScanner.controller);
             }
         }
 
