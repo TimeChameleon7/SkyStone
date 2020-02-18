@@ -6,26 +6,43 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.provider.MediaStore;
 
+import com.vuforia.Image;
+
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-@SuppressWarnings("WeakerAccess")
 public class SkyStoneScanner {
-    private final Bitmap bitmap;
+    private final int width;
+    private final int height;
+    private final short[][] pixels;
     public List<Integer> ys;
 
-    public SkyStoneScanner(Bitmap bitmap, int x, int y, int width, int height) {
-        this.bitmap = Bitmap.createBitmap(bitmap, x, y, width, height);
+    public SkyStoneScanner(Image image, int x, int y, int width, int height) {
+        ByteBuffer buffer = image.getPixels();
+        short[][] pixels = new short[image.getHeight()][image.getWidth()];
+        for (int iY = 0; iY < image.getHeight(); iY++) {
+            for (int iX = 0; iX < image.getWidth(); iX++) {
+                pixels[iY][iX] = (short) (buffer.get() & 0xff);
+            }
+        }
+
+        this.height = height;
+        this.width = width;
+        this.pixels = new short[height][width];
+        for (int iY = 0; iY < height; iY++) {
+            System.arraycopy(pixels[y + iY], x, this.pixels[iY], 0, width);
+        }
     }
 
     public SkyStoneScanner getLines(int maxBrightness, int length) {
-        List<Point> heightDarkCount = new ArrayList<>(bitmap.getHeight());
-        for (int y = 0; y < bitmap.getHeight(); y++) {
+        List<Point> heightDarkCount = new ArrayList<>(height);
+        for (int y = 0; y < height; y++) {
             int count = 0;
-            for (int x = 0; x < bitmap.getWidth(); x++) {
-                if (Color.red(bitmap.getPixel(x, y)) < maxBrightness)
+            for (int x = 0; x < width; x++) {
+                if (pixels[y][x] < maxBrightness)
                     count++;
             }
             //just using Point as it's convenient, just need integers paired up
@@ -57,7 +74,7 @@ public class SkyStoneScanner {
     }
 
     public SkyStoneScanner saveWithLines(Context context, int rgb) {
-        Bitmap bitmap = Bitmap.createBitmap(this.bitmap);
+        Bitmap bitmap = createBitmap();
         for (int y : ys) {
             for (int x = 0; x < bitmap.getWidth(); x++) {
                 bitmap.setPixel(x, y, rgb);
@@ -68,7 +85,18 @@ public class SkyStoneScanner {
     }
 
     public SkyStoneScanner save(Context context) {
-        MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Skystone Image", "");
+        MediaStore.Images.Media.insertImage(context.getContentResolver(), createBitmap(), "Skystone Image", "");
         return this;
+    }
+
+    private Bitmap createBitmap() {
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = pixels[y][x];
+                bitmap.setPixel(x, y, Color.rgb(rgb, rgb, rgb));
+            }
+        }
+        return bitmap;
     }
 }
