@@ -80,6 +80,51 @@ public class AutoModes {
         return new ControllerScanner(controller, scanner);
     }
 
+    private static ControllerShortScanner startShortSeeingSequence(
+            LinearOpMode mode,
+            boolean useSensors,
+            int x,
+            int y,
+            int width,
+            int height
+    ) throws InterruptedException {
+        Context context = mode.hardwareMap.appContext;
+        Telemetry telemetry = mode.telemetry;
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        //noinspection SpellCheckingInspection
+        parameters.vuforiaLicenseKey = "AW7zmbr/////AAABma7Jq+OAOU1CuaonIFUo0/xJJUyI2A02nsbVBSLuw" +
+                "jlJM3+Po0DLAtKsPIaRZkLN0rYBcSHwhv3r3NmFOMqvOx7Wa88CX+uDNWQhrYOAc27kw3usgqIGWmHpO" +
+                "/1onWmWEv0u6hQX/69KUsN/51vAKJrrd58/KOAlSVlLsQH4K5uI0qT0EAVh1FYCd46wG7pBlTdLcDH1Q" +
+                "YzSyeDvPklhNEFMRvUEBpOd9eF1gMunhIagFnSBjA1c89ylVx3RDAlsirW3N97jtzd/Eq3Sr0aznz+7G" +
+                "ar5OtxRUtuoCBMfkAfwkgqtHppySXbRcMGaaC+VtLbeNWWjWTWBczIcoqVH1DqPG5NDn/sP+X9hMV7q+" +
+                "MUA";
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        VuforiaLocalizer vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        int tfodMonitorViewId = context.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", context.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+
+        Controller controller = new Controller(mode, useSensors);
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+        mode.waitForStart();
+
+        telemetry.addData("Status", "Scanning");
+        telemetry.update();
+
+        tfod.activate();
+        Frame frame = vuforia.getFrameQueue().take();
+        Image image = frame.getImage(0);
+        tfod.deactivate();
+
+        ShortSkyStoneScanner scanner =
+                new ShortSkyStoneScanner(image, x, y, width, height)
+                .getLines(11, 10);
+        return new ControllerShortScanner(controller, scanner);
+    }
+
     private static Bitmap imageToBitmap(Image image) {
         final int width = image.getWidth(),
                 height = image.getHeight();
@@ -136,6 +181,59 @@ public class AutoModes {
         @Override
         public void runOpMode() throws InterruptedException {
             FoundationLeft.go(startSequence(this, false).flip());
+        }
+    }
+
+
+    @Disabled
+    @Autonomous(group = "SkyStone", name = "Short SkyStone Left")
+    public static class ShortSkyStonesLeft extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            ControllerShortScanner controllerScanner = startShortSeeingSequence(this, false, 360, 0, 90, 280);
+            if (controllerScanner.scanner.fitsBetween(144, 280, 3)) {
+                logIntent("1");
+                //set above to true when the below is used.
+                //StonesLeft1.go(controllerScanner.controller);
+            } else if (controllerScanner.scanner.fitsBetween(23, 151, 3)) {
+                logIntent("2");
+                //StonesLeft2.go(controllerScanner.controller);
+            } else {
+                logIntent("3");
+                //StonesLeft3.go(controllerScanner.controller);
+            }
+            controllerScanner.scanner.saveWithLines(hardwareMap.appContext, Color.red(255));
+        }
+
+        private void logIntent(String value) {
+            telemetry.addData("Left", value);
+            telemetry.update();
+        }
+    }
+
+    @Disabled
+    @Autonomous(group = "SkyStone", name = "Short SkyStone Right")
+    public static class ShortSkyStonesRight extends LinearOpMode {
+        @Override
+        public void runOpMode() throws InterruptedException {
+            ControllerShortScanner controllerScanner = startShortSeeingSequence(this, false, 360, 0, 90, 280);
+            if (controllerScanner.scanner.fitsBetween(0, 101, 3)) {
+                logIntent("1");
+                //set above to true when the below is used.
+                //StonesRight1.go(controllerScanner.controller);
+            } else if (controllerScanner.scanner.fitsBetween(96, 225, 3)) {
+                logIntent("2");
+                //StonesRight2.go(controllerScanner.controller);
+            } else {
+                logIntent("3");
+                //StonesRight3.go(controllerScanner.controller);
+            }
+            controllerScanner.scanner.saveWithLines(hardwareMap.appContext, Color.red(255));
+        }
+
+        private void logIntent(String value) {
+            telemetry.addData("Right", value);
+            telemetry.update();
         }
     }
 
@@ -451,6 +549,16 @@ public class AutoModes {
         final SkyStoneScanner scanner;
 
         private ControllerScanner(Controller controller, SkyStoneScanner scanner) {
+            this.controller = controller;
+            this.scanner = scanner;
+        }
+    }
+
+    private static class ControllerShortScanner {
+        final Controller controller;
+        final ShortSkyStoneScanner scanner;
+
+        private ControllerShortScanner(Controller controller, ShortSkyStoneScanner scanner) {
             this.controller = controller;
             this.scanner = scanner;
         }
