@@ -185,7 +185,6 @@ public class AutoModes {
     }
 
 
-    @Disabled
     @Autonomous(group = "SkyStone", name = "Short SkyStone Left")
     public static class ShortSkyStonesLeft extends LinearOpMode {
         @Override
@@ -211,7 +210,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous(group = "SkyStone", name = "Short SkyStone Right")
     public static class ShortSkyStonesRight extends LinearOpMode {
         @Override
@@ -237,7 +235,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous(group = "SkyStone", name = "SkyStone Left")
     public static class SkyStonesLeft extends LinearOpMode {
         @Override
@@ -263,7 +260,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous(group = "SkyStone", name = "SkyStone Right")
     public static class SkyStonesRight extends LinearOpMode {
         @Override

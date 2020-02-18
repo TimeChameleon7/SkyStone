@@ -32,9 +32,8 @@ public class ShortSkyStoneScanner {
         this.height = height;
         this.width = width;
         this.pixels = new short[height][width];
-        final int nWidth = width - x;
         for (int iY = 0; iY < height; iY++) {
-            System.arraycopy(pixels[y + iY], x, this.pixels[y + iY], x, nWidth);
+            System.arraycopy(pixels[y + iY], x, this.pixels[iY], 0, width);
         }
     }
 
