@@ -225,7 +225,7 @@ public class Controller {
         }
         public SensorBasedMovements saveOrientation(String name, Direction direction, float dAngle) {
             //noinspection ConstantConditions
-            orientationCheckpoints.put(name, absGoal(direction, dAngle));
+            orientationCheckpoints.put(name, absGoal(flipped ? direction.opposite() : direction, dAngle));
             return this;
         }
         public SensorBasedMovements gotoOrientation(String name) {
@@ -233,7 +233,7 @@ public class Controller {
             return rotateAbs(orientationCheckpoints.get(name));
         }
         public SensorBasedMovements gotoOrientation(Direction direction, double seconds, String name) {
-            bot.rotate(direction, power);
+            bot.rotate(flipped ? direction.opposite() : direction, power);
             bot.sleep(seconds);
             bot.rotate(direction, 0);
             return rotateAbs(orientationCheckpoints.get(name));
