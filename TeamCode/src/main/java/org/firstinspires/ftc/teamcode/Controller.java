@@ -293,7 +293,7 @@ public class Controller {
             return a < goal ? Math.abs(goal - a - 360) : Math.abs(goal - a + 360);
         }
         private double distBasedPower(float dist) {
-            return Math.max(getPower() * dist / 180, getPower() / 20);
+            return Math.max(getPower() * dist / 180, getPower() / 10);
         }
     }
 }
