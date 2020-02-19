@@ -45,7 +45,7 @@ public class Controller {
     }
 
     public Controller flip() {
-        flipped = true;
+        flipped = !flipped;
         timeBasedMovements = null;
         sensorBasedMovements = null;
         return this;

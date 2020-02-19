@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -18,8 +16,6 @@ import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-
-import java.nio.ByteBuffer;
 
 public class AutoModes {
     //todo all of Stone Right and Stone Left 3 need modifications.
@@ -82,28 +78,19 @@ public class AutoModes {
         return new ControllerScanner(controller, scanner);
     }
 
-    private static Bitmap imageToBitmap(Image image) {
-        final int width = image.getWidth(),
-                height = image.getHeight();
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        ByteBuffer buffer = image.getPixels();
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int rgb = buffer.get() & 0xff;
-                bitmap.setPixel(x, y, Color.rgb(rgb, rgb, rgb));
-            }
-        }
-        return bitmap;
-    }
-
-    @Disabled
     @Autonomous(group = "Test", name = "Test")
     public static class Test extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            startSeeingSequence(this, false, 0, 0, 640, 360)
-                    .scanner
-                    .save(hardwareMap.appContext);
+            Controller controller = startSequence(this, false);
+            for (int i = 0; i < 5; i++) {
+                controller.moveByTime()
+                        .setPower(.2)
+                        .move(Direction.LEFT, 2)
+                        .sleep(.5)
+                        .move(Direction.RIGHT, 2)
+                        .sleep(.5);
+            }
         }
     }
 
