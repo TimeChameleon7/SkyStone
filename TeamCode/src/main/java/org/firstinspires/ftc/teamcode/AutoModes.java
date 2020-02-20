@@ -134,13 +134,13 @@ public class AutoModes {
             ControllerScanner controllerScanner = startSeeingSequence(this, true, 360, 0, 90, 280);
             if (controllerScanner.scanner.fitsBetween(144, 280, 3)) {
                 logIntent("1");
-                //StonesLeft1.go(controllerScanner.controller);
+                StonesLeft1.go(controllerScanner.controller);
             } else if (controllerScanner.scanner.fitsBetween(23, 151, 3)) {
                 logIntent("2");
-                //StonesLeft2.go(controllerScanner.controller);
+                StonesLeft2.go(controllerScanner.controller);
             } else {
                 logIntent("3");
-                //StonesLeft3.go(controllerScanner.controller);
+                StonesLeft3.go(controllerScanner.controller);
             }
         }
 
@@ -157,13 +157,13 @@ public class AutoModes {
             ControllerScanner controllerScanner = startSeeingSequence(this, true, 360, 0, 90, 280);
             if (controllerScanner.scanner.fitsBetween(0, 101, 3)) {
                 logIntent("1");
-                //StonesRight1.go(controllerScanner.controller);
+                StonesRight1.go(controllerScanner.controller);
             } else if (controllerScanner.scanner.fitsBetween(96, 225, 3)) {
                 logIntent("2");
-                //StonesRight2.go(controllerScanner.controller);
+                StonesRight2.go(controllerScanner.controller);
             } else {
                 logIntent("3");
-                //StonesRight3.go(controllerScanner.controller);
+                StonesRight3.go(controllerScanner.controller);
             }
         }
 
@@ -189,9 +189,7 @@ public class AutoModes {
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .setPower(.2)
-                    .move(Direction.LEFT, 1)
-                    .setPower(1)
+                    .move(Direction.LEFT, .25)
                     .sleep(.3)
                     .moveBySensor().gotoOrientation("towards blocks").moveByTime()
                     .move(Direction.FORWARD, 1.3)
@@ -199,7 +197,7 @@ public class AutoModes {
                     .move(Direction.FORWARD, 1.3)
                     .holdArmDown(.5)
                     .setPower(1)
-                    .move(Direction.REVERSE, .6)
+                    .move(Direction.REVERSE, .4)
                     .rotate(Direction.LEFT, .41)
                     .sleep(.3)
                     .move(Direction.FORWARD, 2)
@@ -207,13 +205,13 @@ public class AutoModes {
                     .moveBySensor().gotoOrientation("towards bridge").moveByTime()
                     .move(Direction.REVERSE, .6)
                     .armDown(.3)
-                    .move(Direction.REVERSE, 2.55)
+                    .move(Direction.REVERSE, 2.6)
                     .armUp(.7)
                     .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
                     .setPower(.3)
-                    .move(Direction.FORWARD, 1.6)
-                    .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1.4)
+                    .move(Direction.FORWARD, 1.2)
+                    .holdArmDown(.7)
+                    .move(Direction.REVERSE, 1.9)
                     .setPower(1)
                     .rotate(Direction.LEFT, .41)
                     .move(Direction.FORWARD, 3)
@@ -238,17 +236,19 @@ public class AutoModes {
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
+                    .moveBySensor().gotoOrientation("towards blocks").moveByTime()
+                    .sleep(.3)
                     .move(Direction.RIGHT, .26)
                     .sleep(.3)
-                    .move(Direction.FORWARD, 1.4)
+                    .move(Direction.FORWARD, 1.2)
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.3)
                     .holdArmDown(.7)
-                    .move(Direction.REVERSE, 1.7)
+                    .move(Direction.REVERSE, 1.75)
                     .setPower(1)
-                    .rotate(Direction.LEFT, .41)
+                    .moveBySensor().gotoOrientation(Direction.LEFT, .41, "towards bridge").moveByTime()
                     .sleep(.3)
-                    .move(Direction.FORWARD, 2.1)
+                    .move(Direction.FORWARD, 2.2)
                     .armUp(.7)
                     .moveBySensor().gotoOrientation("towards bridge").moveByTime()
                     //first stone is placed
@@ -258,14 +258,14 @@ public class AutoModes {
                     .armUp(.7)
                     .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
                     .setPower(.3)
-                    .move(Direction.FORWARD, 1)
+                    .move(Direction.FORWARD, 1.2)
                     .holdArmDown(.7)
                     .setPower(1)
-                    .move(Direction.REVERSE, .4)
+                    .move(Direction.REVERSE, .45)
                     .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 3.5)
+                    .move(Direction.FORWARD, 3.3)
                     .armUp(.5)
-                    .move(Direction.REVERSE, .35);
+                    .move(Direction.REVERSE, .4);
         }
     }
 
@@ -281,35 +281,25 @@ public class AutoModes {
                     .saveOrientation("towards blocks")
                     .saveOrientation("towards bridge", Direction.LEFT, 89);
 
-
             controller.moveByTime()
-                    .move(Direction.FORWARD, .2)
-                    .sleep(.3)
-                    .move(Direction.RIGHT, .65)
-                    .sleep(.3)
                     .move(Direction.FORWARD, 1.4)
+                    .sleep(.3)
+                    .moveBySensor().gotoOrientation("towards blocks").moveByTime()
+                    .sleep(.3)
+                    .setPower(.5)
+                    .move(Direction.RIGHT, 1.6)
+                    .setPower(1)
+                    .sleep(.3)
+                    .move(Direction.FORWARD, .2)
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.2)
                     .holdArmDown(.5)
                     .move(Direction.REVERSE, 1.7)
                     .setPower(1)
                     .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 2.6)
+                    .move(Direction.FORWARD, 2.8)
                     .armUp(.7)
-                    .move(Direction.REVERSE, .6)
-                    .armDown(.3)
-                    .move(Direction.REVERSE, 1.5)
-                    .sleep(.3)
-                    .move(Direction.REVERSE, 1.5)
-                    .armUp(.7)
-                    .moveBySensor().gotoOrientation(Direction.RIGHT, .41,"towards blocks").moveByTime()
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1.35)
-                    .holdArmDown(.5)
-                    .setPower(1)
-                    .move(Direction.REVERSE, .5)
-                    .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 3.2);
+                    .move(Direction.REVERSE, .6);
         }
     }
 
