@@ -18,7 +18,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 public class AutoModes {
-    //todo all of Stone Right and Stone Left 3 need modifications.
     private AutoModes(){}
 
     private static Controller startSequence(LinearOpMode mode, boolean useSensors) {
@@ -135,13 +134,13 @@ public class AutoModes {
             ControllerScanner controllerScanner = startSeeingSequence(this, true, 360, 0, 90, 280);
             if (controllerScanner.scanner.fitsBetween(144, 280, 3)) {
                 logIntent("1");
-                StonesLeft1.go(controllerScanner.controller);
+                //StonesLeft1.go(controllerScanner.controller);
             } else if (controllerScanner.scanner.fitsBetween(23, 151, 3)) {
                 logIntent("2");
-                StonesLeft2.go(controllerScanner.controller);
+                //StonesLeft2.go(controllerScanner.controller);
             } else {
                 logIntent("3");
-                StonesLeft3.go(controllerScanner.controller);
+                //StonesLeft3.go(controllerScanner.controller);
             }
         }
 
@@ -158,13 +157,13 @@ public class AutoModes {
             ControllerScanner controllerScanner = startSeeingSequence(this, true, 360, 0, 90, 280);
             if (controllerScanner.scanner.fitsBetween(0, 101, 3)) {
                 logIntent("1");
-                StonesRight1.go(controllerScanner.controller);
+                //StonesRight1.go(controllerScanner.controller);
             } else if (controllerScanner.scanner.fitsBetween(96, 225, 3)) {
                 logIntent("2");
-                StonesRight2.go(controllerScanner.controller);
+                //StonesRight2.go(controllerScanner.controller);
             } else {
                 logIntent("3");
-                StonesRight3.go(controllerScanner.controller);
+                //StonesRight3.go(controllerScanner.controller);
             }
         }
 
@@ -185,12 +184,14 @@ public class AutoModes {
             controller.moveBySensor()
                     .saveOrientation("towards blocks")
                     .saveOrientation("towards bridge", Direction.LEFT, 89);
-            //89 instead of 90 to attempt to fix tilt on long reverse time
+            //89 instead of 90 to fix tilt on long reverse time
 
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.LEFT, .18)
+                    .setPower(.2)
+                    .move(Direction.LEFT, 1)
+                    .setPower(1)
                     .sleep(.3)
                     .moveBySensor().gotoOrientation("towards blocks").moveByTime()
                     .move(Direction.FORWARD, 1.3)
@@ -206,12 +207,12 @@ public class AutoModes {
                     .moveBySensor().gotoOrientation("towards bridge").moveByTime()
                     .move(Direction.REVERSE, .6)
                     .armDown(.3)
-                    .move(Direction.REVERSE, 2.6)
+                    .move(Direction.REVERSE, 2.55)
                     .armUp(.7)
                     .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
                     .setPower(.3)
-                    .move(Direction.FORWARD, 1.2)
-                    .holdArmDown(.3)
+                    .move(Direction.FORWARD, 1.6)
+                    .holdArmDown(.5)
                     .move(Direction.REVERSE, 1.4)
                     .setPower(1)
                     .rotate(Direction.LEFT, .41)
@@ -237,9 +238,7 @@ public class AutoModes {
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .setPower(.2)
-                    .move(Direction.RIGHT, .26 * 5)
-                    .setPower(1)
+                    .move(Direction.RIGHT, .26)
                     .sleep(.3)
                     .move(Direction.FORWARD, 1.4)
                     .setPower(.3)
