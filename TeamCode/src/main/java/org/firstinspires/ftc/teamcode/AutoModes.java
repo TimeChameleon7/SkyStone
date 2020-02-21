@@ -77,6 +77,7 @@ public class AutoModes {
         return new ControllerScanner(controller, scanner);
     }
 
+    @Disabled
     @Autonomous(group = "Test", name = "Test")
     public static class Test extends LinearOpMode {
         @Override
@@ -150,6 +151,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(group = "SkyStone", name = "SkyStone Right")
     public static class SkyStonesRight extends LinearOpMode {
         @Override
@@ -173,6 +175,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(group = "Stones Left", name = "SkyStone Left 1")
     public static class StonesLeft1 extends LinearOpMode {
         @Override
@@ -221,6 +224,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(group = "Stones Left", name = "SkyStone Left 2")
     public static class StonesLeft2 extends LinearOpMode {
         @Override
@@ -269,6 +273,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(group = "Stones Left", name = "SkyStone Left 3")
     public static class StonesLeft3 extends LinearOpMode {
         @Override
@@ -303,6 +308,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(group = "Stones Right", name = "SkyStone Right 1")
     public static class StonesRight1 extends LinearOpMode {
         @Override
@@ -350,6 +356,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(group = "Stones Right", name = "SkyStone Right 2")
     public static class StonesRight2 extends LinearOpMode {
         @Override
@@ -362,6 +369,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(group = "Stones Right", name = "SkyStone Right 3")
     public static class StonesRight3 extends LinearOpMode {
         @Override
