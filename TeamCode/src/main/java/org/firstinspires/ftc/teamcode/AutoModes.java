@@ -314,7 +314,6 @@ public class AutoModes {
             controller.moveBySensor()
                     .saveOrientation("towards blocks")
                     .saveOrientation("towards bridge", Direction.RIGHT, 90);
-            //89 instead of 90 to attempt to fix tilt on long reverse time
 
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
