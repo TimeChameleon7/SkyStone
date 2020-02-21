@@ -151,7 +151,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous(group = "SkyStone", name = "SkyStone Right")
     public static class SkyStonesRight extends LinearOpMode {
         @Override
@@ -308,7 +307,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous(group = "Stones Right", name = "SkyStone Right 1")
     public static class StonesRight1 extends LinearOpMode {
         @Override
@@ -317,14 +315,15 @@ public class AutoModes {
         }
 
         static void go(Controller controller) {
+            controller.flip();
             controller.moveBySensor()
                     .saveOrientation("towards blocks")
-                    .saveOrientation("towards bridge", Direction.RIGHT, 90);
+                    .saveOrientation("towards bridge", Direction.LEFT, 89);
 
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.RIGHT, .25)
+                    .move(Direction.LEFT, .5)
                     .sleep(.3)
                     .moveBySensor().gotoOrientation("towards blocks").moveByTime()
                     .move(Direction.FORWARD, 1.3)
@@ -332,31 +331,16 @@ public class AutoModes {
                     .move(Direction.FORWARD, 1.3)
                     .holdArmDown(.5)
                     .setPower(1)
-                    .move(Direction.REVERSE, .7)
-                    .rotate(Direction.RIGHT, .41)
+                    .move(Direction.REVERSE, .4)
+                    .rotate(Direction.LEFT, .42)
                     .sleep(.3)
                     .move(Direction.FORWARD, 2)
                     .armUp(.7)
-                    .moveBySensor().gotoOrientation("towards bridge").moveByTime()
                     .move(Direction.REVERSE, .6)
-                    .armDown(.3)
-                    .move(Direction.REVERSE, 2.5)
-                    .armUp(.7)
-                    .moveBySensor().gotoOrientation(Direction.LEFT, .41, "towards blocks").moveByTime()
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1.2)
-                    .holdArmDown(.3)
-                    .move(Direction.REVERSE, 1.4)
-                    .setPower(1)
-                    .rotate(Direction.RIGHT, .41)
-                    .move(Direction.FORWARD, 3)
-                    .armUp(.6)
-                    .move(Direction.REVERSE, .4)
-                    .sleep(.3);
+                    .armDown(.3);
         }
     }
 
-    @Disabled
     @Autonomous(group = "Stones Right", name = "SkyStone Right 2")
     public static class StonesRight2 extends LinearOpMode {
         @Override
@@ -365,11 +349,35 @@ public class AutoModes {
         }
 
         static void go(Controller controller) {
-            StonesLeft2.go(controller.flip());
+            controller.flip();
+            controller.moveBySensor()
+                    .saveOrientation("towards blocks")
+                    .saveOrientation("towards bridge", Direction.LEFT, 89);
+
+            controller.moveByTime()
+                    .move(Direction.FORWARD, .2)
+                    .sleep(.3)
+                    .moveBySensor().gotoOrientation("towards blocks").moveByTime()
+                    .sleep(.3)
+                    .move(Direction.RIGHT, .26)
+                    .sleep(.3)
+                    .move(Direction.FORWARD, 1.2)
+                    .setPower(.3)
+                    .move(Direction.FORWARD, 1.3)
+                    .holdArmDown(.7)
+                    .move(Direction.REVERSE, 1.6)
+                    .setPower(1)
+                    .moveBySensor().gotoOrientation(Direction.LEFT, .41, "towards bridge").moveByTime()
+                    .sleep(.3)
+                    .move(Direction.FORWARD, 2.2)
+                    .armUp(.7)
+                    .moveBySensor().gotoOrientation("towards bridge").moveByTime()
+                    //first stone is placed
+                    .move(Direction.REVERSE, .5)
+                    .armDown(.3);
         }
     }
 
-    @Disabled
     @Autonomous(group = "Stones Right", name = "SkyStone Right 3")
     public static class StonesRight3 extends LinearOpMode {
         @Override
@@ -378,7 +386,30 @@ public class AutoModes {
         }
 
         static void go(Controller controller) {
-            StonesLeft3.go(controller.flip());
+            controller.flip();
+            controller.moveBySensor()
+                    .saveOrientation("towards blocks")
+                    .saveOrientation("towards bridge", Direction.LEFT, 89);
+
+            controller.moveByTime()
+                    .move(Direction.FORWARD, 1.4)
+                    .sleep(.3)
+                    .moveBySensor().gotoOrientation("towards blocks").moveByTime()
+                    .sleep(.3)
+                    .setPower(.5)
+                    .move(Direction.RIGHT, 1.45)
+                    .setPower(1)
+                    .sleep(.3)
+                    .move(Direction.FORWARD, .2)
+                    .setPower(.3)
+                    .move(Direction.FORWARD, 1.1)
+                    .holdArmDown(.5)
+                    .move(Direction.REVERSE, 1.9)
+                    .setPower(1)
+                    .rotate(Direction.LEFT, .42)
+                    .move(Direction.FORWARD, 2.8)
+                    .armUp(.7)
+                    .move(Direction.REVERSE, .6);
         }
     }
 
