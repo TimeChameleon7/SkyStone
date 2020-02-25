@@ -413,7 +413,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous(group = "SensorTest", name = "Sensor Test")
     public static class SensorTest extends LinearOpMode {
         @Override
@@ -429,17 +428,21 @@ public class AutoModes {
             } else {
                 //attempt smoothing
                 final float[] prevValues = new float[3];
+                final Integrator integrator = new Integrator();
                 SensorEventListener listener = new SensorEventListener() {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
-                        float[] delta = new float[3];
-                        for (int i = 0; i < 3; i++) {
-                            delta[i] = event.values[i] - prevValues[i];
-                        }
-                        System.arraycopy(event.values, 0, prevValues, 0, 3);
-                        telemetry.addData("X", "%+f", delta[0])
-                                .addData("Y", "%+f", delta[1])
-                                .addData("Z", "%+f", delta[2]);
+                        integrator.update(event.values);
+                        telemetry
+                                .addData("Accel X", "%+f", integrator.acceleration.xAccel)
+                                .addData("Accel Y", "%+f", integrator.acceleration.yAccel)
+                                .addData("Accel Z", "%+f", integrator.acceleration.zAccel)
+                                .addData("Veloc X", "%+f", integrator.velocity.xVeloc)
+                                .addData("Veloc Y", "%+f", integrator.velocity.yVeloc)
+                                .addData("Veloc Z", "%+f", integrator.velocity.zVeloc)
+                                .addData("Posit X", "%+f", integrator.position.x)
+                                .addData("Posit Y", "%+f", integrator.position.y)
+                                .addData("Posit Z", "%+f", integrator.position.z);
                         telemetry.update();
                     }
 
