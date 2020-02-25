@@ -22,6 +22,7 @@ public class Integrator {
         Acceleration accel = new Acceleration(DistanceUnit.METER, values[0], values[1], values[2], System.currentTimeMillis());
         if (acceleration != null) {
             Acceleration accelPrev = acceleration;
+            acceleration = accel;
 
             Velocity velocDelta = meanIntegrate(accel, accelPrev);
             Velocity velocPrev = velocity;

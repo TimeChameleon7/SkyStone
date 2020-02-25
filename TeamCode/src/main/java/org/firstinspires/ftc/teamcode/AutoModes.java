@@ -77,19 +77,18 @@ public class AutoModes {
         return new ControllerScanner(controller, scanner);
     }
 
-    @Disabled
     @Autonomous(group = "Test", name = "Test")
     public static class Test extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            Controller controller = startSequence(this, false);
+            Controller controller = startSequence(this, true);
+            controller.holdArmDown(1);
             for (int i = 0; i < 5; i++) {
                 controller.moveByTime()
-                        .setPower(.2)
-                        .move(Direction.LEFT, 2)
-                        .sleep(.5)
-                        .move(Direction.RIGHT, 2)
-                        .sleep(.5);
+                        .move(Direction.FORWARD, 2.5)
+                        .sleep(1)
+                        .move(Direction.REVERSE, 2.5)
+                        .sleep(1);
             }
         }
     }
@@ -437,12 +436,15 @@ public class AutoModes {
                                 .addData("Accel X", "%+f", integrator.acceleration.xAccel)
                                 .addData("Accel Y", "%+f", integrator.acceleration.yAccel)
                                 .addData("Accel Z", "%+f", integrator.acceleration.zAccel)
+                                .addData("Accel A", "%d", integrator.acceleration.acquisitionTime)
                                 .addData("Veloc X", "%+f", integrator.velocity.xVeloc)
                                 .addData("Veloc Y", "%+f", integrator.velocity.yVeloc)
                                 .addData("Veloc Z", "%+f", integrator.velocity.zVeloc)
+                                .addData("Veloc A", "%d", integrator.velocity.acquisitionTime)
                                 .addData("Posit X", "%+f", integrator.position.x)
                                 .addData("Posit Y", "%+f", integrator.position.y)
-                                .addData("Posit Z", "%+f", integrator.position.z);
+                                .addData("Posit Z", "%+f", integrator.position.z)
+                                .addData("Posit A", "%d", integrator.position.acquisitionTime);
                         telemetry.update();
                     }
 
