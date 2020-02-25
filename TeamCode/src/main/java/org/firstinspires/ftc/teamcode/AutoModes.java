@@ -454,7 +454,7 @@ public class AutoModes {
                 };
                 manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
                 c.moveByTime()
-                        .sleep(10);
+                        .sleep(120);
                 manager.unregisterListener(listener);
             }
         }

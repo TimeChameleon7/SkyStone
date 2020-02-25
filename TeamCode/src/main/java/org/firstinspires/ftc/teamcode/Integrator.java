@@ -24,7 +24,7 @@ public class Integrator {
             Acceleration accelPrev = acceleration;
             acceleration = accel;
 
-            Velocity velocDelta = meanIntegrate(accel, accelPrev);
+            Velocity velocDelta = meanIntegrate(acceleration, accelPrev);
             Velocity velocPrev = velocity;
             velocity = plus(velocity, velocDelta);
 
