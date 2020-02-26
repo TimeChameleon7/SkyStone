@@ -425,27 +425,24 @@ public class AutoModes {
                 telemetry.update();
                 sleep(2000);
             } else {
-                //attempt smoothing
-                final float[] prevValues = new float[3];
                 final Integrator integrator = new Integrator();
                 SensorEventListener listener = new SensorEventListener() {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
                         integrator.update(event.values);
-                        telemetry
-                                .addData("Accel X", "%+f", integrator.acceleration.xAccel)
-                                .addData("Accel Y", "%+f", integrator.acceleration.yAccel)
-                                .addData("Accel Z", "%+f", integrator.acceleration.zAccel)
-                                .addData("Accel A", "%d", integrator.acceleration.acquisitionTime)
-                                .addData("Veloc X", "%+f", integrator.velocity.xVeloc)
-                                .addData("Veloc Y", "%+f", integrator.velocity.yVeloc)
-                                .addData("Veloc Z", "%+f", integrator.velocity.zVeloc)
-                                .addData("Veloc A", "%d", integrator.velocity.acquisitionTime)
-                                .addData("Posit X", "%+f", integrator.position.x)
-                                .addData("Posit Y", "%+f", integrator.position.y)
-                                .addData("Posit Z", "%+f", integrator.position.z)
-                                .addData("Posit A", "%d", integrator.position.acquisitionTime);
-                        telemetry.update();
+                        if (integrator.acceleration != null) {
+                            telemetry
+                                    .addData("Accel X", "%+f", integrator.acceleration.xAccel)
+                                    .addData("Accel Y", "%+f", integrator.acceleration.yAccel)
+                                    .addData("Accel Z", "%+f", integrator.acceleration.zAccel)
+                                    .addData("Veloc X", "%+f", integrator.velocity.xVeloc)
+                                    .addData("Veloc Y", "%+f", integrator.velocity.yVeloc)
+                                    .addData("Veloc Z", "%+f", integrator.velocity.zVeloc)
+                                    .addData("Posit X", "%+f", integrator.position.x)
+                                    .addData("Posit Y", "%+f", integrator.position.y)
+                                    .addData("Posit Z", "%+f", integrator.position.z);
+                            telemetry.update();
+                        }
                     }
 
                     @Override
