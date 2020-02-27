@@ -206,7 +206,8 @@ public class AutoModes {
                     .armUp(.7)
                     .moveBySensor().gotoOrientation("towards bridge").moveByTime()
                     .move(Direction.REVERSE, .6)
-                    .armDown(.3)
+                    .armDown(.3);
+            /*
                     .move(Direction.REVERSE, 2.6)
                     .armUp(.7)
                     .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
@@ -220,6 +221,8 @@ public class AutoModes {
                     .armUp(.6)
                     .move(Direction.REVERSE, .4)
                     .sleep(.3);
+
+             */
         }
     }
 
@@ -256,7 +259,8 @@ public class AutoModes {
                     .moveBySensor().gotoOrientation("towards bridge").moveByTime()
                     //first stone is placed
                     .move(Direction.REVERSE, .5)
-                    .armDown(.3)
+                    .armDown(.3);
+                    /*
                     .move(Direction.REVERSE, 2.8)
                     .armUp(.7)
                     .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
@@ -269,6 +273,8 @@ public class AutoModes {
                     .move(Direction.FORWARD, 3.3)
                     .armUp(.5)
                     .move(Direction.REVERSE, .4);
+
+                     */
         }
     }
 
@@ -291,7 +297,7 @@ public class AutoModes {
                     .moveBySensor().gotoOrientation("towards blocks").moveByTime()
                     .sleep(.3)
                     .setPower(.5)
-                    .move(Direction.RIGHT, 1.6)
+                    .move(Direction.RIGHT, 1.4)
                     .setPower(1)
                     .sleep(.3)
                     .move(Direction.FORWARD, .2)
@@ -319,11 +325,12 @@ public class AutoModes {
             controller.moveBySensor()
                     .saveOrientation("towards blocks")
                     .saveOrientation("towards bridge", Direction.LEFT, 89);
+            //89 instead of 90 to fix tilt on long reverse time
 
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
-                    .move(Direction.LEFT, .5)
+                    .move(Direction.LEFT, .25)
                     .sleep(.3)
                     .moveBySensor().gotoOrientation("towards blocks").moveByTime()
                     .move(Direction.FORWARD, 1.3)
@@ -332,12 +339,12 @@ public class AutoModes {
                     .holdArmDown(.5)
                     .setPower(1)
                     .move(Direction.REVERSE, .4)
-                    .rotate(Direction.LEFT, .42)
+                    .rotate(Direction.LEFT, .41)
                     .sleep(.3)
                     .move(Direction.FORWARD, 2)
                     .armUp(.7)
-                    .move(Direction.REVERSE, .6)
-                    .armDown(.3);
+                    .moveBySensor().gotoOrientation("towards bridge").moveByTime()
+                    .move(Direction.REVERSE, .6);
         }
     }
 
@@ -404,12 +411,66 @@ public class AutoModes {
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.1)
                     .holdArmDown(.5)
-                    .move(Direction.REVERSE, 1.9)
+                    .move(Direction.REVERSE, 2.2)
                     .setPower(1)
-                    .rotate(Direction.LEFT, .42)
+                    .moveBySensor().gotoOrientation(Direction.LEFT, .42, "towards bridge").moveByTime()
                     .move(Direction.FORWARD, 2.8)
                     .armUp(.7)
                     .move(Direction.REVERSE, .6);
+        }
+    }
+
+    @Autonomous(group = "Park Left", name = "Park Left Edge")
+    public static class ParkLeftEdge extends LinearOpMode {
+
+        @Override
+        public void runOpMode() throws InterruptedException {
+            go(startSequence(this, false));
+        }
+
+        static void go(Controller controller) {
+            controller.moveByTime()
+                    .move(Direction.FORWARD, .25)
+                    .armDown(.3)
+                    .move(Direction.LEFT, 1.8);
+        }
+    }
+
+    @Autonomous(group = "Park Right", name = "Park Right Edge")
+    public static class ParkRightEdge extends LinearOpMode {
+
+        @Override
+        public void runOpMode() throws InterruptedException {
+            Controller controller = startSequence(this, false);
+            controller.moveByTime()
+                    .move(Direction.FORWARD, .25)
+                    .armDown(.3)
+                    .move(Direction.RIGHT, 1.8);
+        }
+    }
+
+    @Autonomous(group = "Park Left", name = "Park Left Middle")
+    public static class ParkLeftMiddle extends LinearOpMode {
+
+        @Override
+        public void runOpMode() throws InterruptedException {
+            go(startSequence(this, false));
+        }
+
+        static void go(Controller controller) {
+            controller.moveByTime()
+                    .move(Direction.FORWARD, 1.2)
+                    .armDown(.15)
+                    .move(Direction.LEFT, 1.5);
+        }
+    }
+
+    @Autonomous(group = "Park Right", name = "Park Right Middle")
+    public static class ParkRightMiddle extends LinearOpMode {
+
+        @Override
+        public void runOpMode() throws InterruptedException {
+            ParkLeftMiddle.go(startSequence(this, false).flip());
         }
     }
 
