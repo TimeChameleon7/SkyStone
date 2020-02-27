@@ -22,6 +22,7 @@ public class BotController {
      * The Servo that, when powered, opens and closes the hand.
      */
     private final Servo hand;
+    private final double[] weights;
 
     /**
      * Sets all fields as well as sets the motors into the brake behavior.
@@ -35,6 +36,8 @@ public class BotController {
         motors[2] = get(map, "three");
         motors[3] = get(map, "four");
         for (DcMotor motor : motors) motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        weights = new double[4];
+        for (int i = 0; i < weights.length; i++) weights[i] = 1;
         arm = get(map, "servoArm");
         hand = get(map, "servoOne");
     }
@@ -45,6 +48,15 @@ public class BotController {
     @SuppressWarnings("unchecked")
     static <T> T get(HardwareMap map, String name) {
         return (T) map.get(name);
+    }
+
+    public void setWeight(int i, double weight) {
+        if (weight < 0 || weight > 1) throw new IllegalArgumentException("weight must be on [0,1]");
+        weights[i] = weight;
+    }
+
+    public double getWeight(int i) {
+        return weights[i];
     }
 
     public void sleep(double seconds) {
@@ -131,8 +143,9 @@ public class BotController {
      */
     public void move(Direction direction, double power) {
         DcMotor[] motors = getMotors(direction);
-        motors[0].setPower(power);
-        motors[1].setPower(-power);
+        double[] weights = getWeights(direction);
+        motors[0].setPower(power * weights[0]);
+        motors[1].setPower(-power * weights[1]);
     }
 
     /**
@@ -150,6 +163,16 @@ public class BotController {
             case REVERSE:   return new DcMotor[]{motors[2], motors[0]};
             case LEFT:      return new DcMotor[]{motors[3], motors[1]};
             case RIGHT:     return new DcMotor[]{motors[1], motors[3]};
+            default:        throw new IllegalArgumentException("Direction is null");
+        }
+    }
+
+    private double[] getWeights(Direction direction) {
+        switch (direction) {
+            case FORWARD:   return new double[]{weights[0], weights[2]};
+            case REVERSE:   return new double[]{weights[2], weights[0]};
+            case LEFT:      return new double[]{weights[3], weights[1]};
+            case RIGHT:     return new double[]{weights[1], weights[3]};
             default:        throw new IllegalArgumentException("Direction is null");
         }
     }
