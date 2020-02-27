@@ -43,8 +43,8 @@ public class Integrator {
             }
         } else {
             accel = minus(accel, accelFilter);
-            accel = plus(acceleration, divide(minus(accel, acceleration), 1.2));
             if (acceleration != null) {
+                accel = plus(acceleration, divide(minus(accel, acceleration), 1.2));
                 Velocity velocDelta = meanIntegrate(accel, acceleration);
                 acceleration = accel;
 
