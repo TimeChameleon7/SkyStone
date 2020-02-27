@@ -84,6 +84,13 @@ public class Controller {
         bot.openHand();
     }
 
+    public double getWeight(int i) {
+        return bot.getWeight(i);
+    }
+    public void setWeight(int i, double weight) {
+        bot.setWeight(i, weight);
+    }
+
     public TimeBasedMovements moveByTime() {
         if (timeBasedMovements == null) {
             if (flipped) {
@@ -236,6 +243,7 @@ public class Controller {
             bot.rotate(flipped ? direction.opposite() : direction, power);
             bot.sleep(seconds);
             bot.rotate(direction, 0);
+            //noinspection ConstantConditions
             return rotateAbs(orientationCheckpoints.get(name));
         }
 
@@ -278,7 +286,7 @@ public class Controller {
             else if (direction == Direction.RIGHT) return alignAngle(getAngle() - dAngle);
             else throw new IllegalArgumentException("direction must be left or right");
         }
-        private float getAngle() {
+        public float getAngle() {
             //noinspection ConstantConditions
             return imu.getAngularOrientation().firstAngle;
         }

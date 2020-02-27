@@ -82,14 +82,19 @@ public class AutoModes {
         @Override
         public void runOpMode() throws InterruptedException {
             Controller controller = startSequence(this, true);
-            controller.holdArmDown(1);
+            controller.setWeight(0, .965);
             for (int i = 0; i < 5; i++) {
+                float angle = controller.moveBySensor().getAngle();
                 controller.moveByTime()
                         .move(Direction.FORWARD, 2.5)
-                        .sleep(1)
+                        .sleep(.5);
+                angle -= controller.moveBySensor().getAngle();
+                controller.moveByTime()
                         .move(Direction.REVERSE, 2.5)
-                        .sleep(1);
+                        .sleep(.5);
+                telemetry.log().add("%f", angle);
             }
+            controller.sleep(10);
         }
     }
 
