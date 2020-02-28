@@ -77,20 +77,24 @@ public class AutoModes {
         return new ControllerScanner(controller, scanner);
     }
 
-    @Disabled
     @Autonomous(group = "Test", name = "Test")
     public static class Test extends LinearOpMode {
         @Override
         public void runOpMode() throws InterruptedException {
-            Controller controller = startSequence(this, false);
+            Controller controller = startSequence(this, true);
+            controller.setWeight(0, .965);
             for (int i = 0; i < 5; i++) {
+                float angle = controller.moveBySensor().getAngle();
                 controller.moveByTime()
-                        .setPower(.2)
-                        .move(Direction.LEFT, 2)
-                        .sleep(.5)
-                        .move(Direction.RIGHT, 2)
+                        .move(Direction.FORWARD, 2.5)
                         .sleep(.5);
+                angle -= controller.moveBySensor().getAngle();
+                controller.moveByTime()
+                        .move(Direction.REVERSE, 2.5)
+                        .sleep(.5);
+                telemetry.log().add("%f", angle);
             }
+            controller.sleep(10);
         }
     }
 
@@ -325,7 +329,6 @@ public class AutoModes {
             controller.moveBySensor()
                     .saveOrientation("towards blocks")
                     .saveOrientation("towards bridge", Direction.LEFT, 89);
-            //89 instead of 90 to fix tilt on long reverse time
 
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
@@ -488,20 +491,24 @@ public class AutoModes {
                 telemetry.update();
                 sleep(2000);
             } else {
-                //attempt smoothing
-                final float[] prevValues = new float[3];
+                final Integrator integrator = new Integrator();
                 SensorEventListener listener = new SensorEventListener() {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
-                        float[] delta = new float[3];
-                        for (int i = 0; i < 3; i++) {
-                            delta[i] = event.values[i] - prevValues[i];
+                        integrator.update(event.values);
+                        if (integrator.acceleration != null) {
+                            telemetry
+                                    .addData("Accel X", "%+f", integrator.acceleration.xAccel)
+                                    .addData("Accel Y", "%+f", integrator.acceleration.yAccel)
+                                    .addData("Accel Z", "%+f", integrator.acceleration.zAccel)
+                                    .addData("Veloc X", "%+f", integrator.velocity.xVeloc)
+                                    .addData("Veloc Y", "%+f", integrator.velocity.yVeloc)
+                                    .addData("Veloc Z", "%+f", integrator.velocity.zVeloc)
+                                    .addData("Posit X", "%+f", integrator.position.x)
+                                    .addData("Posit Y", "%+f", integrator.position.y)
+                                    .addData("Posit Z", "%+f", integrator.position.z);
+                            telemetry.update();
                         }
-                        System.arraycopy(event.values, 0, prevValues, 0, 3);
-                        telemetry.addData("X", "%+f", delta[0])
-                                .addData("Y", "%+f", delta[1])
-                                .addData("Z", "%+f", delta[2]);
-                        telemetry.update();
                     }
 
                     @Override
@@ -510,7 +517,7 @@ public class AutoModes {
                 };
                 manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
                 c.moveByTime()
-                        .sleep(10);
+                        .sleep(120);
                 manager.unregisterListener(listener);
             }
         }
