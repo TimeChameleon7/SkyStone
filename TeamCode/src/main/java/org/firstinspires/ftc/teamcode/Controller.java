@@ -21,6 +21,7 @@ public class Controller {
     private final HashMap<String, Float> orientationCheckpoints;
     private TimeBasedMovements timeBasedMovements;
     private SensorBasedMovements sensorBasedMovements;
+    public IMUIntegrator integrator;
 
     public Controller(LinearOpMode mode, boolean useSensors) {
         bot = new BotController(mode.hardwareMap);
@@ -30,7 +31,8 @@ public class Controller {
             parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
             parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
             parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
-            parameters.accelerationIntegrationAlgorithm = new SmoothingIntegrator(5);
+            integrator = new IMUIntegrator(100);
+            parameters.accelerationIntegrationAlgorithm = integrator;
             imu = BotController.get(mode.hardwareMap, "imu");
             imu.initialize(parameters);
             imu.startAccelerationIntegration(null, null, 1);

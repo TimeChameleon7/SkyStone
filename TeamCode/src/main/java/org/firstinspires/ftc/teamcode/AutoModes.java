@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -477,48 +473,26 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous(group = "SensorTest", name = "Sensor Test")
     public static class SensorTest extends LinearOpMode {
         @Override
         public void runOpMode() {
-            Controller c = startSequence(this, false);
+            Controller c = startSequence(this, true);
 
-            SensorManager manager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-            Sensor sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            if (sensor == null) {
-                telemetry.addData("Status", "sensor is null");
+            IMUIntegrator integrator = c.integrator;
+            for (int i = 0; i < 1200; i++) {
+                c.sleep(.1);
+                telemetry
+                        .addData("Accel X", "%+f", integrator.getAcceleration().xAccel)
+                        .addData("Accel Y", "%+f", integrator.getAcceleration().yAccel)
+                        .addData("Accel Z", "%+f", integrator.getAcceleration().zAccel)
+                        .addData("Veloc X", "%+f", integrator.getVelocity().xVeloc)
+                        .addData("Veloc Y", "%+f", integrator.getVelocity().yVeloc)
+                        .addData("Veloc Z", "%+f", integrator.getVelocity().zVeloc)
+                        .addData("Posit X", "%+f", integrator.getPosition().x)
+                        .addData("Posit Y", "%+f", integrator.getPosition().y)
+                        .addData("Posit Z", "%+f", integrator.getPosition().z);
                 telemetry.update();
-                sleep(2000);
-            } else {
-                final Integrator integrator = new Integrator();
-                SensorEventListener listener = new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        integrator.update(event.values);
-                        if (integrator.acceleration != null) {
-                            telemetry
-                                    .addData("Accel X", "%+f", integrator.acceleration.xAccel)
-                                    .addData("Accel Y", "%+f", integrator.acceleration.yAccel)
-                                    .addData("Accel Z", "%+f", integrator.acceleration.zAccel)
-                                    .addData("Veloc X", "%+f", integrator.velocity.xVeloc)
-                                    .addData("Veloc Y", "%+f", integrator.velocity.yVeloc)
-                                    .addData("Veloc Z", "%+f", integrator.velocity.zVeloc)
-                                    .addData("Posit X", "%+f", integrator.position.x)
-                                    .addData("Posit Y", "%+f", integrator.position.y)
-                                    .addData("Posit Z", "%+f", integrator.position.z);
-                            telemetry.update();
-                        }
-                    }
-
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int i) {
-                    }
-                };
-                manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
-                c.moveByTime()
-                        .sleep(120);
-                manager.unregisterListener(listener);
             }
         }
     }
