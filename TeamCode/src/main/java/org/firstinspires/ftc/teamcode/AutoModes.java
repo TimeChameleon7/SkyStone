@@ -67,7 +67,7 @@ public class AutoModes {
 
         SkyStoneScanner scanner =
                 new SkyStoneScanner(image, x, y, width, height)
-                .getLines(11, 10);
+                        .getLines(11, 10);
         telemetry.addData("Status", "Started");
         telemetry.update();
         return new ControllerScanner(controller, scanner);
@@ -104,7 +104,7 @@ public class AutoModes {
 
         static void go(Controller controller) {
             controller.moveBySensor().saveOrientation("starting");
-            
+
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
                     .sleep(.3)
@@ -282,7 +282,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous(group = "Stones Right", name = "SkyStone Right 1")
     public static class StonesRight1 extends LinearOpMode {
         @Override
