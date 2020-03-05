@@ -73,6 +73,7 @@ public class AutoModes {
         return new ControllerScanner(controller, scanner);
     }
 
+    @Disabled
     @Autonomous(group = "Test", name = "Test")
     public static class Test extends LinearOpMode {
         @Override
@@ -178,7 +179,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
     @Autonomous(group = "Stones Left", name = "SkyStone Left 1")
     public static class StonesLeft1 extends LinearOpMode {
         @Override
@@ -210,28 +210,10 @@ public class AutoModes {
                     .move(Direction.FORWARD, 2)
                     .armUp(.7)
                     .moveBySensor().gotoOrientation("towards bridge").moveByTime()
-                    .move(Direction.REVERSE, .6)
-                    .armDown(.3);
-            /*
-                    .move(Direction.REVERSE, 2.6)
-                    .armUp(.7)
-                    .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1.2)
-                    .holdArmDown(.7)
-                    .move(Direction.REVERSE, 1.9)
-                    .setPower(1)
-                    .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 3)
-                    .armUp(.6)
-                    .move(Direction.REVERSE, .4)
-                    .sleep(.3);
-
-             */
+                    .move(Direction.REVERSE, .6);
         }
     }
 
-    @Disabled
     @Autonomous(group = "Stones Left", name = "SkyStone Left 2")
     public static class StonesLeft2 extends LinearOpMode {
         @Override
@@ -262,28 +244,10 @@ public class AutoModes {
                     .move(Direction.FORWARD, 2.2)
                     .armUp(.7)
                     .moveBySensor().gotoOrientation("towards bridge").moveByTime()
-                    //first stone is placed
-                    .move(Direction.REVERSE, .5)
-                    .armDown(.3);
-                    /*
-                    .move(Direction.REVERSE, 2.8)
-                    .armUp(.7)
-                    .moveBySensor().gotoOrientation(Direction.RIGHT, .41, "towards blocks").moveByTime()
-                    .setPower(.3)
-                    .move(Direction.FORWARD, 1.2)
-                    .holdArmDown(.7)
-                    .setPower(1)
-                    .move(Direction.REVERSE, .45)
-                    .rotate(Direction.LEFT, .41)
-                    .move(Direction.FORWARD, 3.3)
-                    .armUp(.5)
-                    .move(Direction.REVERSE, .4);
-
-                     */
+                    .move(Direction.REVERSE, .5);
         }
     }
 
-    @Disabled
     @Autonomous(group = "Stones Left", name = "SkyStone Left 3")
     public static class StonesLeft3 extends LinearOpMode {
         @Override
@@ -318,6 +282,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(group = "Stones Right", name = "SkyStone Right 1")
     public static class StonesRight1 extends LinearOpMode {
         @Override
@@ -384,8 +349,7 @@ public class AutoModes {
                     .sleep(.3)
                     .move(Direction.FORWARD, 2.2)
                     .armUp(.7)
-                    .move(Direction.REVERSE, .5)
-                    .armDown(.3);
+                    .move(Direction.REVERSE, .5);
         }
     }
 
