@@ -445,6 +445,7 @@ public class AutoModes {
         }
     }
 
+    @Disabled
     @Autonomous(group = "SensorTest", name = "Sensor Test")
     public static class SensorTest extends LinearOpMode {
         @Override
