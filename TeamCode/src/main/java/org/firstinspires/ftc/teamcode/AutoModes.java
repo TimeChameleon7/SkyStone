@@ -188,9 +188,7 @@ public class AutoModes {
 
         static void go(Controller controller) {
             controller.moveBySensor()
-                    .saveOrientation("towards blocks")
-                    .saveOrientation("towards bridge", Direction.LEFT, 89);
-            //89 instead of 90 to fix tilt on long reverse time
+                    .saveOrientation("towards blocks");
 
             controller.moveByTime()
                     .move(Direction.FORWARD, .2)
@@ -202,14 +200,14 @@ public class AutoModes {
                     .move(Direction.FORWARD, 1.3)
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.3)
-                    .holdArmDown(.5)
+                    .holdArmDown(.7)
                     .setPower(1)
                     .move(Direction.REVERSE, .4)
                     .rotate(Direction.LEFT, .41)
                     .sleep(.3)
                     .move(Direction.FORWARD, 2)
                     .armUp(.7)
-                    .moveBySensor().gotoOrientation("towards bridge").moveByTime()
+                    .rotate(Direction.LEFT, .41)
                     .move(Direction.REVERSE, .6);
         }
     }
@@ -233,7 +231,7 @@ public class AutoModes {
                     .sleep(.3)
                     .move(Direction.RIGHT, .26)
                     .sleep(.3)
-                    .move(Direction.FORWARD, 1.2)
+                    .move(Direction.FORWARD, 1.4)
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.3)
                     .holdArmDown(.7)
@@ -272,7 +270,7 @@ public class AutoModes {
                     .move(Direction.FORWARD, .2)
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.2)
-                    .holdArmDown(.5)
+                    .holdArmDown(.7)
                     .move(Direction.REVERSE, 1.7)
                     .setPower(1)
                     .rotate(Direction.LEFT, .41)
@@ -303,7 +301,7 @@ public class AutoModes {
                     .move(Direction.FORWARD, 1.3)
                     .setPower(.3)
                     .move(Direction.FORWARD, 1.3)
-                    .holdArmDown(.5)
+                    .holdArmDown(.7)
                     .setPower(.7)
                     .move(Direction.REVERSE, .4)
                     .sleep(.3)
