@@ -207,7 +207,6 @@ public class AutoModes {
                     .sleep(.3)
                     .move(Direction.FORWARD, 2)
                     .armUp(.7)
-                    .rotate(Direction.LEFT, .41)
                     .move(Direction.REVERSE, .6);
         }
     }
@@ -255,8 +254,7 @@ public class AutoModes {
 
         static void go(Controller controller) {
             controller.moveBySensor()
-                    .saveOrientation("towards blocks")
-                    .saveOrientation("towards bridge", Direction.LEFT, 89);
+                    .saveOrientation("towards blocks");
 
             controller.moveByTime()
                     .move(Direction.FORWARD, 1.4)
