@@ -138,6 +138,7 @@ public class AutoModes {
         @Override
         public void runOpMode() throws InterruptedException {
             ControllerScanner controllerScanner = startSeeingSequence(this, true, 360, 0, 90, 280);
+            /*
             if (controllerScanner.scanner.fitsBetween(144, 280, 3)) {
                 logIntent("1");
                 StonesLeft1.go(controllerScanner.controller);
@@ -148,6 +149,8 @@ public class AutoModes {
                 logIntent("3");
                 StonesLeft3.go(controllerScanner.controller);
             }
+             */
+
             //should be a black image
             controllerScanner.scanner.saveOnlyRectangles(hardwareMap.appContext);
 
