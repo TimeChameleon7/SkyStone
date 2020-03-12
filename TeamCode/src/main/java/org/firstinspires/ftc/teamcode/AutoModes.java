@@ -148,6 +148,17 @@ public class AutoModes {
                 logIntent("3");
                 StonesLeft3.go(controllerScanner.controller);
             }
+            //should be a black image
+            controllerScanner.scanner.saveOnlyRectangles(hardwareMap.appContext);
+
+            //point-point not point-size
+            final int width = controllerScanner.scanner.width;
+            final int height = controllerScanner.scanner.height;
+            controllerScanner.scanner.saveOnlyRectangles(
+                    hardwareMap.appContext,
+                    144, 0, 280, height,
+                    23, 0, 151, height
+            );
         }
 
         private void logIntent(String value) {

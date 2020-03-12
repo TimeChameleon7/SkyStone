@@ -15,8 +15,8 @@ import java.util.Comparator;
 import java.util.List;
 
 public class SkyStoneScanner {
-    private final int width;
-    private final int height;
+    final int width;
+    final int height;
     private final short[][] pixels;
     public List<Integer> ys;
 
@@ -73,8 +73,35 @@ public class SkyStoneScanner {
         return true;
     }
 
+    public int getAvgBrightness(int minX, int minY, int maxX, int maxY) {
+        int avg = 0;
+        int count = 0;
+        for (int y = minY; y < maxY; y++) {
+            for (int x = minX; x < maxX; x++) {
+                avg += pixels[y][x];
+                count++;
+            }
+        }
+        return avg / count;
+    }
+
+    public SkyStoneScanner saveOnlyRectangles(Context context, int... numbers) {
+        if (numbers.length % 4 != 0) throw new IllegalArgumentException("numbers length must be a multiple of 4");
+        short[][] pixels = new short[height][width];
+        //only copy what's in numbers[]
+        for (int i = 0; i < numbers.length / 4; i++) {
+            for (int x = numbers[0]; x < numbers[2]; x++) {
+                for (int y = numbers[1]; y < numbers[3]; y++) {
+                    pixels[y][x] = this.pixels[y][x];
+                }
+            }
+        }
+        MediaStore.Images.Media.insertImage(context.getContentResolver(), createBitmap(pixels), "Skystone Image", "");
+        return this;
+    }
+
     public SkyStoneScanner saveWithLines(Context context, int rgb) {
-        Bitmap bitmap = createBitmap();
+        Bitmap bitmap = createBitmap(pixels);
         for (int y : ys) {
             for (int x = 0; x < bitmap.getWidth(); x++) {
                 bitmap.setPixel(x, y, rgb);
@@ -85,11 +112,11 @@ public class SkyStoneScanner {
     }
 
     public SkyStoneScanner save(Context context) {
-        MediaStore.Images.Media.insertImage(context.getContentResolver(), createBitmap(), "Skystone Image", "");
+        MediaStore.Images.Media.insertImage(context.getContentResolver(), createBitmap(pixels), "Skystone Image", "");
         return this;
     }
 
-    private Bitmap createBitmap() {
+    private Bitmap createBitmap(short[][] pixels) {
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
