@@ -441,31 +441,6 @@ public class AutoModes {
         }
     }
 
-    @Disabled
-    @Autonomous(group = "SensorTest", name = "Sensor Test")
-    public static class SensorTest extends LinearOpMode {
-        @Override
-        public void runOpMode() {
-            Controller c = startSequence(this, true);
-
-            IMUIntegrator integrator = c.integrator;
-            for (int i = 0; i < 1200; i++) {
-                c.sleep(.1);
-                telemetry
-                        .addData("Accel X", "%+f", integrator.getAcceleration().xAccel)
-                        .addData("Accel Y", "%+f", integrator.getAcceleration().yAccel)
-                        .addData("Accel Z", "%+f", integrator.getAcceleration().zAccel)
-                        .addData("Veloc X", "%+f", integrator.getVelocity().xVeloc)
-                        .addData("Veloc Y", "%+f", integrator.getVelocity().yVeloc)
-                        .addData("Veloc Z", "%+f", integrator.getVelocity().zVeloc)
-                        .addData("Posit X", "%+f", integrator.getPosition().x)
-                        .addData("Posit Y", "%+f", integrator.getPosition().y)
-                        .addData("Posit Z", "%+f", integrator.getPosition().z);
-                telemetry.update();
-            }
-        }
-    }
-
     /**
      * Basic pairing class for usage with the sight-based modes.
      */
